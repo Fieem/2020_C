@@ -101,6 +101,7 @@ int main (void)
     pid_loop_angle_init();
     pid_loop_yaw_init();
     pid_loop_gyro_z_init();
+    pid_loop_speed_init();
 	// while (adc_xunhuan)
     // {  
     //     // test_vofa_poll();  
@@ -142,7 +143,8 @@ int main (void)
         if ((now - s_last_100ms) >= 100U)
         {
             s_last_100ms = now;
-            printf("Data:%.2f\r\n", distance_accum);
+            printf("Pitch:%.2f\r\n", Roll_a);
+            //printf("Data:%.2f\r\n", distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 
             //printf("Data: %.2f, %.2f, %.2f, %d, %d\r\n", target_gyro_z, yaw_rate_z, line_error_filtered, current_left_pwm, current_right_pwm);
             //printf("Data: %.2f, %.2f, %.2f\r\n", Yaw_TotalAngle, Pitch_a, Roll_a);

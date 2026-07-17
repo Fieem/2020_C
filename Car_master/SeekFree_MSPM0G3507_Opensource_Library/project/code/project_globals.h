@@ -28,4 +28,7 @@ extern volatile uint32_t g_timestamp_ms;
 
 extern float battery_voltage;
 extern float distance_accum;
+extern int32_t enc_left;
+extern int32_t enc_right;
+
 #endif /* PROJECT_GLOBALS_H */

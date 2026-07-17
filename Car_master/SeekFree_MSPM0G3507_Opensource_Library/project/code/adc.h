@@ -44,6 +44,7 @@ void adc_calibration_trigger_once(void);
 
 extern float line_error_raw;
 extern float line_error_filtered;
+extern int line_lost;
 
 void tracking_control_loop(void);
 

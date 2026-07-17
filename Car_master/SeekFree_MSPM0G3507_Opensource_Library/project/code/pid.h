@@ -36,6 +36,8 @@ typedef struct
 extern AddressPID_Controller pid_angle;
 extern AddressPID_Controller pid_yaw;
 extern AddressPID_Controller pid_gyro_z;
+extern AddressPID_Controller pid_speed_left;
+extern AddressPID_Controller pid_speed_right;
 
 // 目标速度设置 (定义在main.c，单位: rad/s，范围: 0-20)
 extern float target_speed_left;
@@ -73,6 +75,9 @@ void pid_loop_yaw_update(void);
 
 void pid_loop_gyro_z_init(void);
 void pid_loop_gyro_z_update(void);
+
+void pid_loop_speed_init(void);
+void pid_loop_speed_update(void);
 
 #endif // PID_H
 

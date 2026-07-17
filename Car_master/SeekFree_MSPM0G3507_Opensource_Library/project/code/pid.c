@@ -98,11 +98,6 @@ void pid_loop_angle_init(void)
     pid_pos_init(&pid_angle, 3.0f, 0.0f, 0.125f);
 }
 
-// void pid_loop_yaw_init(void)
-// {
-//     pid_pos_init(&pid_yaw, 0.2f, 0.0f, 0.0f);
-// }
-
 void pid_loop_yaw_init(void)
 {
     pid_pos_init(&pid_yaw, 5.0f, 0.0f, 0.25f);
@@ -110,6 +105,24 @@ void pid_loop_yaw_init(void)
 void pid_loop_gyro_z_init(void)
 {
     pid_pos_init(&pid_gyro_z, 0.5f, 0.0f, 0.0f);
+}
+
+// ============ 速度环（新） ============
+AddressPID_Controller pid_speed_left  = {0};
+AddressPID_Controller pid_speed_right = {0};
+
+void pid_loop_speed_init(void)
+{
+    pid_pos_init(&pid_speed_left,  0.5f, 0.1f, 0.0f);
+    pid_pos_init(&pid_speed_right, 0.5f, 0.1f, 0.0f);
+}
+
+void pid_loop_speed_update(void)
+{
+    target_speed_left  = pid_pos_calculate(&pid_speed_left,  target_speed_left,  (float)enc_left,
+                                           -500.0f, 500.0f, -100.0f, 100.0f);
+    target_speed_right = pid_pos_calculate(&pid_speed_right, target_speed_right, (float)enc_right,
+                                           -500.0f, 500.0f, -100.0f, 100.0f);
 }
 // void pid_loop_speed_update(void)
 // {
@@ -141,31 +154,11 @@ void pid_loop_gyro_z_init(void)
  */
 void pid_loop_angle_update(void)
 {
-    // const float speed_set = 25.0f;
-    // const float track_error = line_error_filtered;
-    // if (left_turn_state == 1) {
-    //     speed_set = 24.0f;                              // 转弯准备期速度写死，不随圈数次变化
-    // } else {
-    //     speed_set = (left_turn_done_count%2) ? 24.0f : 18.0f;
-    // }
-    speed_set = 20.0f;
-    target_gyro_z = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
-                                        INTEGRAL_MIN, INTEGRAL_MAX,
-                                        -20.0f, 20.0f);
-
-    // target_speed_right = pid_clamp(speed_set - steer, MIN_SPEED, MAX_SPEED);
-    // target_speed_left = pid_clamp(speed_set + steer, MIN_SPEED, MAX_SPEED);
-
-    // if (flag_left)
-    // {
-    //     target_speed_right = 15.0f;
-    //     target_speed_left = 1.0f;
-    // }
-    // else if (flag_right)
-    // {
-    //     target_speed_left = 15.0f;
-    //     target_speed_right = 1.0f;
-    // }
+    speed_set = 17.0f;
+    float steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                                     -100.0f, 100.0f, -15.0f, 15.0f);
+    target_speed_left  = speed_set + steer;
+    target_speed_right = speed_set - steer;
 }
 
 /**
@@ -182,25 +175,11 @@ void pid_loop_angle_update(void)
  */
 void pid_loop_yaw_update(void)
 {
-    // const float yaw_error = target_yaw - gyro_yaw;
-    // steering_out = pid_pos_calculate(&pid_yaw, target_yaw, gyro_yaw,
-    //                                  -INTEGRAL_MAX, INTEGRAL_MAX,
-    //                                  -20.0f, 20.0f);
-
-    // const float speed_set = 18.0f;
-    // target_speed_right = pid_clamp(speed_set - steering_out, MIN_SPEED, MAX_SPEED);
-    // target_speed_left  = pid_clamp(speed_set + steering_out, MIN_SPEED, MAX_SPEED);
     speed_set = 17.0f;
-    if (fabs(target_yaw - Yaw_TotalAngle) < 0.2f)
-    {
-        target_gyro_z = 0.0f; // 当偏航误差较小时，不进行陀螺仪控制
-    }
-    else
-    {
-        target_gyro_z = pid_pos_calculate(&pid_yaw, target_yaw, Yaw_TotalAngle,
-                                        -INTEGRAL_MAX, INTEGRAL_MAX,
-                                        -80.0f, 80.0f);
-    }
+    float steer = pid_pos_calculate(&pid_yaw, target_yaw, Yaw_TotalAngle,
+                                     -100.0f, 100.0f, -15.0f, 15.0f);
+    target_speed_left  = speed_set + steer;
+    target_speed_right = speed_set - steer;
 }
 
 void pid_loop_gyro_z_update(void)

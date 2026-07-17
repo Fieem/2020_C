@@ -26,3 +26,6 @@ volatile uint32_t g_timestamp_ms = 0;
 
 float battery_voltage = 0.0f;
 float distance_accum = 0.0f;
+
+int32_t enc_left  = 0;
+int32_t enc_right = 0;

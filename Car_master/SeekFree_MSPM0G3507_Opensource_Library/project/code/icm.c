@@ -53,7 +53,7 @@ float X_V_F,Y_V_F;              //滤波线速度读数
 float Pitch_acc, Roll_acc, Yaw_acc;
 float Pitch_acc_F, Roll_acc_F, Yaw_acc_F;
                                 //过滤加速度
-float Pitch_a, Roll_a, Yaw_a;
+float Pitch_a, Roll_a, Yaw_a;   //因为陀螺仪安装方向问题,此时Roll_a为实际俯仰角
 biquad_state Pitch_g_biquad, Roll_g_biquad, Yaw_g_biquad,
              Pitch_acc_biquad, Roll_acc_biquad, Yaw_acc_biquad,Roll_g_biquad2,adc_error;
 

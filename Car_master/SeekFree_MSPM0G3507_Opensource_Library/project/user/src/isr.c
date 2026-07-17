@@ -63,8 +63,8 @@ void TIMA1_IRQHandler (void)
     }
     yaw_rate_z = Yaw_g;
     tracking_control_loop();        // 循迹控制主循环
-    int32_t enc_left  = encoder_get_left();
-    int32_t enc_right = encoder_get_right();
+    enc_left  = encoder_get_left();
+    enc_right = encoder_get_right();
     encoder_clear_left();
     encoder_clear_right();
     // 左右轮脉冲取平均（防止倒退导致 distance_accum 减少）
