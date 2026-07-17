@@ -38,6 +38,7 @@
 #include "project_globals.h"
 #include "test.h"
 #include "icm.h"
+#include "encoder.h"
 
 #define YAW_SAMPLE_PERIOD_S  (0.005f)   // 定义陀螺仪采样周期为 5ms，即 200Hz 的采样率
 #define GYRO_Z_DEADBAND_DPS  (0.15f)    // 定义陀螺仪 Z 轴死区范围，单位为度每秒（dps），小于该值的读数将被视为零
@@ -62,6 +63,13 @@ void TIMA1_IRQHandler (void)
     }
     yaw_rate_z = Yaw_g;
     tracking_control_loop();        // 循迹控制主循环
+    int32_t enc_left  = encoder_get_left();
+    int32_t enc_right = encoder_get_right();
+    encoder_clear_left();
+    encoder_clear_right();
+    // 左右轮脉冲取平均（防止倒退导致 distance_accum 减少）
+    float avg_pulses = 0.5f * ((float)enc_left + (float)enc_right);
+    distance_accum += avg_pulses;
 }
 
 void TIMG0_IRQHandler (void)

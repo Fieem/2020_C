@@ -27,4 +27,5 @@ extern uint8_t adc_xunhuan;
 extern volatile uint32_t g_timestamp_ms;
 
 extern float battery_voltage;
+extern float distance_accum;
 #endif /* PROJECT_GLOBALS_H */

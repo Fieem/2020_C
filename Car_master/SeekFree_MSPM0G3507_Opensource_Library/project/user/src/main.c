@@ -43,6 +43,7 @@
 #include "zf_device_key.h"
 #include "test.h"
 #include "icm.h"
+#include "encoder.h"
 #define IMU_WARMUP_MS (2000)            // ICM42688 陀螺仪热身时间，单位为毫秒，建议至少 2000ms 以确保陀螺仪稳定
 static uint32_t s_last_100ms = 0;       // 上次100ms行为触发时间
 
@@ -73,7 +74,7 @@ static void wait_start_key(void)
 
 int main (void)
 {
-clock_init(SYSTEM_CLOCK_80M);   // 时钟配置及系统初始化<务必保留>
+    clock_init(SYSTEM_CLOCK_80M);   // 时钟配置及系统初始化<务必保留>
     debug_init();					// 调试串口信息初始化
     adc_init(ADC0_CH7_A22, ADC_12BIT);
 	// 此处编写用户代码 例如外设初始化代码等
@@ -100,23 +101,24 @@ clock_init(SYSTEM_CLOCK_80M);   // 时钟配置及系统初始化<务必保留>
     pid_loop_angle_init();
     pid_loop_yaw_init();
     pid_loop_gyro_z_init();
-	while (adc_xunhuan)
-    {  
-        // test_vofa_poll();  
-        adc_calibration_task();
-        system_delay_ms(ADC_CALIB_TASK_PERIOD_MS);
-    }
-    while (start_flag == 0);
+	// while (adc_xunhuan)
+    // {  
+    //     // test_vofa_poll();  
+    //     adc_calibration_task();
+    //     system_delay_ms(ADC_CALIB_TASK_PERIOD_MS);
+    // }
+    //while (start_flag == 0);
     //wait_start_key();                               // 等待按键按下后开始执行陀螺仪校准和
     printsf(0, "ICM start!");
     Init_ICM42688();                                // 初始化 ICM42688 陀螺仪
     system_delay_ms(IMU_WARMUP_MS);                 // Give the gyro time to thermally settle before bias calibration.
     IMU_calibration();                              // ICM42688 陀螺仪校准
     Filter_Init();
+    encoder_init();                                 // 初始化编码器（左轮硬件+右轮软件）
     printsf(0, "fuck!!!!");
     printsf(0, "hello world");
 
-    while (start_flag == 1);
+    //while (start_flag == 1);
     //wait_start_key();                               // 等待按键按下后开始执行主循环
     pit_ms_init(PIT_TIM_A0,5,NULL,NULL);	
     pit_ms_init(PIT_TIM_A1,5,NULL,NULL);
@@ -135,11 +137,12 @@ clock_init(SYSTEM_CLOCK_80M);   // 时钟配置及系统初始化<务必保留>
     {
         // 此处编写需要循环执行的代码
         // printf("gyro_yaw: %.2f icm42688_gyro_z: %.2f\r\n", gyro_yaw, icm42688_gyro_z);
-        uint32_t now = g_timestamp_ms;              // 璇诲綋鍓嶆椂闂存埑
+        uint32_t now = g_timestamp_ms;              
         battery_voltage = adc_mean_filter_convert(ADC0_CH7_A22, 10)*0.0089388f; // 读取 A22 引脚的 ADC 值,3.3f/4096.0f*11.095f
         if ((now - s_last_100ms) >= 100U)
         {
             s_last_100ms = now;
+            printf("Data:%.2f\r\n", distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 
             //printf("Data: %.2f, %.2f, %.2f, %d, %d\r\n", target_gyro_z, yaw_rate_z, line_error_filtered, current_left_pwm, current_right_pwm);
             //printf("Data: %.2f, %.2f, %.2f\r\n", Yaw_TotalAngle, Pitch_a, Roll_a);

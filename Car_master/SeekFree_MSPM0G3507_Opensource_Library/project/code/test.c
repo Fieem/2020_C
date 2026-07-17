@@ -85,23 +85,8 @@ static int test_key_equal(const char *a, const char *b)
 
 static int test_vofa_apply_kv(const char *key, float value)
 {
-    if (test_key_equal(key, "P1")) { pid_angle.Kp = value;                                              printsf(0, "[VOFA] P1=%.4f", value);                return 1; }
-    if (test_key_equal(key, "I1")) { pid_angle.Ki = value;                                              printsf(0, "[VOFA] I1=%.4f", value);                return 1; }
-    if (test_key_equal(key, "D1")) { pid_angle.Kd = value;                                              printsf(0, "[VOFA] D1=%.4f", value);                return 1; }
-
-    if (test_key_equal(key, "P2")) { pid_yaw.Kp = value;                                                printsf(0, "[VOFA] P2=%.4f", value);                return 1; }
-    if (test_key_equal(key, "I2")) { pid_yaw.Ki = value;                                                printsf(0, "[VOFA] I2=%.4f", value);                return 1; }
-    if (test_key_equal(key, "D2")) { pid_yaw.Kd = value;                                                printsf(0, "[VOFA] D2=%.4f", value);                return 1; }
-
-    if (test_key_equal(key, "P3")) { pid_gyro_z.Kp = value;                                                printsf(0, "[VOFA] P3=%.4f", value);                return 1; }
-    if (test_key_equal(key, "I3")) { pid_gyro_z.Ki = value;                                                printsf(0, "[VOFA] I3=%.4f", value);                return 1; }
-    if (test_key_equal(key, "D3")) { pid_gyro_z.Kd = value;                                                printsf(0, "[VOFA] D3=%.4f", value);                return 1; }
-
-    if (test_key_equal(key, "TY")) { target_yaw = value;                                                printsf(0, "[VOFA] TY=%.4f", value);                return 1; }
-    if (test_key_equal(key, "SL")) { target_speed_left = value;                                         printsf(0, "[VOFA] SL=%.4f", value);                return 1; }
-    if (test_key_equal(key, "SR")) { target_speed_right = value;                                        printsf(0, "[VOFA] SR=%.4f", value);                return 1; }
-    if (test_key_equal(key, "TASK")) { task_number = (uint8_t)((value < 0.0f) ? 0.0f : value);          printsf(0, "[VOFA] TASK=%u", task_number);          return 1; }
-    if (test_key_equal(key, "TG")) { target_gyro_z = value;                                             printsf(0, "[VOFA] TG=%.4f", target_gyro_z);            return 1; }
+    
+    
 // RSTC command removed — circle counting not needed
     if (test_key_equal(key, "CAL"))
     {
@@ -117,7 +102,7 @@ static int test_vofa_apply_kv(const char *key, float value)
         if (value > 0.5f)
         {
             printsf(0, "%.2f, %.2f, %.2f", pid_angle.Kp, pid_angle.Ki, pid_angle.Kd);
-            printsf(0, "%.2f, %.2f, %.2f", pid_yaw.Kp, pid_yaw.Ki, pid_yaw.Kd);
+            printsf(0, "%.2f, %.2f, %.2f", pid_yaw.Kp,   pid_yaw.Ki,   pid_yaw.Kd);
         }
         return 1;
     }

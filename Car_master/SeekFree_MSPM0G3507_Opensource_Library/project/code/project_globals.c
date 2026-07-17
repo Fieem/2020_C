@@ -25,3 +25,4 @@ uint8_t adc_xunhuan = 1;
 volatile uint32_t g_timestamp_ms = 0;
 
 float battery_voltage = 0.0f;
+float distance_accum = 0.0f;
