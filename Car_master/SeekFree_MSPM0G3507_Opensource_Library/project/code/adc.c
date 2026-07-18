@@ -5,6 +5,7 @@
 #include "test.h"
 #include "motor.h"
 #include "icm.h"
+#include "lqr.h"
 #include <string.h>
 //-------------------------------------------------------------------------------------------------------------------
 // 本文件是关于adc光电管灰度值读取的相关内容
@@ -430,20 +431,11 @@ void tracking_control_loop()// 循迹控制主循环
     adc_capture(); // 基于最值映射归一化ADC值到0-100
     // 2. 计算线性跟踪误差
     calculate_line_error();
-    // 3. 有线走循迹环，丢线走角度保持环
-    static int prev_line_lost = 0;
-    if (!line_lost) {
-        pid_loop_angle_update();
-        prev_line_lost = 0;
-    } else {
-        if (prev_line_lost == 0) {
-            target_yaw = Yaw_TotalAngle;  // 丢线首帧锁定当前航向
-            prev_line_lost = 1;
-        }
-        pid_loop_yaw_update();
-    }
-    // 4. 陀螺仪Z轴速率环稳定
+    // 3. LQR 控制器（自动处理有/丢线切换）
+    lqr_update();
+    // 4. 速度环 + 电机输出
     pid_loop_speed_update();
+    // 5. 电池补偿 + 电机输出
     Motor_Control();
 
 } 
