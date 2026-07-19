@@ -143,11 +143,20 @@ int main (void)
         if ((now - s_last_100ms) >= 100U)
         {
             s_last_100ms = now;
-            printf("Pitch:%.2f\r\n", Roll_a);
-            //printf("Data:%.2f\r\n", distance_accum);
+            //printf("Pitch:%.2f\r\n", Roll_a);
+            //printf("dis=%.2f\r\n",distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 
             //printf("Data: %.2f, %.2f, %.2f, %d, %d\r\n", target_gyro_z, yaw_rate_z, line_error_filtered, current_left_pwm, current_right_pwm);
             //printf("Data: %.2f, %.2f, %.2f\r\n", Yaw_TotalAngle, Pitch_a, Roll_a);
+            {
+                int32_t l, r;
+                l = enc_left_acc;
+                r = enc_right_acc;
+                enc_left_acc = 0;
+                enc_right_acc = 0;
+                //printf("Data:%d, %d,%.2f,%.2f\r\n",(int)l, (int)r,target_speed_left,target_speed_right);
+                printf("Data:%.1f,%.1f\r\n", l / 20.0f, (double)target_speed_left);
+            }
             
         // (board communication removed — not needed for slope task)
         }

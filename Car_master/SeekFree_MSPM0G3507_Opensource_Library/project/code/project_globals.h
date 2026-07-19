@@ -30,5 +30,9 @@ extern float battery_voltage;
 extern float distance_accum;
 extern int32_t enc_left;
 extern int32_t enc_right;
+extern int32_t enc_left_acc;
+extern int32_t enc_right_acc;
 
+extern float target_pwm_left;
+extern float target_pwm_right;
 #endif /* PROJECT_GLOBALS_H */

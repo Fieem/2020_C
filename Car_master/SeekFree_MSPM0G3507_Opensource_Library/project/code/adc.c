@@ -433,14 +433,14 @@ void tracking_control_loop()// 循迹控制主循环
     // 3. 有线走循迹环，丢线走角度保持环
     static int prev_line_lost = 0;
     if (!line_lost) {
-        pid_loop_angle_update();
+        //pid_loop_angle_update();
         prev_line_lost = 0;
     } else {
         if (prev_line_lost == 0) {
             target_yaw = Yaw_TotalAngle;  // 丢线首帧锁定当前航向
             prev_line_lost = 1;
         }
-        pid_loop_yaw_update();
+        //pid_loop_yaw_update();
     }
     // 4. 陀螺仪Z轴速率环稳定
     pid_loop_speed_update();

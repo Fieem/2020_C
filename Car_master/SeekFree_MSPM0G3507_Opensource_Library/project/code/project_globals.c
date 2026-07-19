@@ -29,3 +29,9 @@ float distance_accum = 0.0f;
 
 int32_t enc_left  = 0;
 int32_t enc_right = 0;
+
+int32_t enc_left_acc  = 0;
+int32_t enc_right_acc = 0;
+
+float target_pwm_left = 0.0f;
+float target_pwm_right = 0.0f;
