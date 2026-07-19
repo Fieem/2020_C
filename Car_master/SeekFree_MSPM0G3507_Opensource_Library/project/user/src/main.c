@@ -89,8 +89,7 @@ int main (void)
     printsf_clear(2); 
     printsf(0, "MSPM0G3507 OpenSource Library");
     key_init(5);                                    // 初始化按键模块 
-    //gpio_init(B22, GPO, GPIO_HIGH, GPO_PUSH_PULL);
-    pwm_init(PWM_TIM_G8_CH1_B22, 1000, 0);          // 1kHz
+    // TIMG8 由左轮 QEI 使用，不再初始化 B22 测试 PWM。
     // adc_init(ADC0_CH7_A22, ADC_12BIT);           // 初始化 ADC0 的 A22 引脚为 12 位分辨率
     adc_init(ADC1_CH5_B18, ADC_12BIT);
     adc_capture_init();                             // 初始化 ADC 采集相关 GPIO 和状态
@@ -121,7 +120,7 @@ int main (void)
     system_delay_ms(IMU_WARMUP_MS);                 // Give the gyro time to thermally settle before bias calibration.
     IMU_calibration();                              // ICM42688 陀螺仪校准
     Filter_Init();
-    encoder_init();                                 // 初始化编码器（左轮硬件+右轮软件）
+    encoder_init();                                 // 初始化编码器（左轮QEI+右轮EXTI）
     printsf(0, "fuck!!!!");
     printsf(0, "hello world");
 
