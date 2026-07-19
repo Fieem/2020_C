@@ -44,6 +44,8 @@
 #include "test.h"
 #include "icm.h"
 #include "encoder.h"
+#include "zf_driver_exti.h"
+#include "beep.h"
 #define IMU_WARMUP_MS (2000)            // ICM42688 陀螺仪热身时间，单位为毫秒，建议至少 2000ms 以确保陀螺仪稳定
 static uint32_t s_last_100ms = 0;       // 上次100ms行为触发时间
 
@@ -63,6 +65,8 @@ static void wait_start_key(void)
     {
         Motor_SetLeft(0);
         Motor_SetRight(0);
+        Buzzer_Poll();
+        test_vofa_poll();
         system_delay_ms(10);
     }
 
@@ -90,7 +94,8 @@ int main (void)
     // adc_init(ADC0_CH7_A22, ADC_12BIT);           // 初始化 ADC0 的 A22 引脚为 12 位分辨率
     adc_init(ADC1_CH5_B18, ADC_12BIT);
     adc_capture_init();                             // 初始化 ADC 采集相关 GPIO 和状态
-    
+    exti_init(A30, EXTI_TRIGGER_FALLING, adc_calib_button_callback, NULL);
+
     if (adc_calib_flash_load())
     {
         adc_xunhuan = 0;
@@ -98,16 +103,17 @@ int main (void)
         printsf(0, "ADC calib loaded from flash");
     }
     Motor_Init();                                   // 初始化电机控制模块
+    Buzzer_Init();                                  // 初始化蜂鸣器
     pid_loop_angle_init();
     pid_loop_yaw_init();
     pid_loop_gyro_z_init();
     pid_loop_speed_init();
-	// while (adc_xunhuan)
-    // {  
-    //     // test_vofa_poll();  
-    //     adc_calibration_task();
-    //     system_delay_ms(ADC_CALIB_TASK_PERIOD_MS);
-    // }
+	while (adc_xunhuan)
+    {  
+        // test_vofa_poll();  
+        adc_calibration_task();
+        system_delay_ms(ADC_CALIB_TASK_PERIOD_MS);
+    }
     //while (start_flag == 0);
     //wait_start_key();                               // 等待按键按下后开始执行陀螺仪校准和
     printsf(0, "ICM start!");
@@ -120,11 +126,13 @@ int main (void)
     printsf(0, "hello world");
 
     //while (start_flag == 1);
-    //wait_start_key();                               // 等待按键按下后开始执行主循环
+
     pit_ms_init(PIT_TIM_A0,5,NULL,NULL);	
     pit_ms_init(PIT_TIM_A1,5,NULL,NULL);
     interrupt_set_priority(TIMA0_INT_IRQn, 1);      // 中断优先级 0-7 越低越高
     interrupt_set_priority(TIMA1_INT_IRQn, 0);      // 设置定时器A1中断优先级为0
+    wait_start_key();                               // 等待 A31 发车键
+    start_flag = 1;                                 // LQR 开始计算目标速度
     printsf(0, "start!");
 
     battery_voltage = adc_mean_filter_convert(ADC0_CH7_A22, 10)*0.0089388f;
@@ -143,7 +151,7 @@ int main (void)
         if ((now - s_last_100ms) >= 100U)
         {
             s_last_100ms = now;
-            //printf("Pitch:%.2f\r\n", Roll_a);
+            //printf("Pitch:%.2f\r\n", Roll_a); 
             //printf("dis=%.2f\r\n",distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 
             //printf("Data: %.2f, %.2f, %.2f, %d, %d\r\n", target_gyro_z, yaw_rate_z, line_error_filtered, current_left_pwm, current_right_pwm);
@@ -164,6 +172,7 @@ int main (void)
         // printf("line_error_filtered: %.2f\r\n", line_error_filtered);
         //printsf(0, "%.2f", gyro_yaw);
         // system_delay_ms(200);
+        Buzzer_Poll();
         test_vofa_poll();
 
     }

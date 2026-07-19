@@ -6,6 +6,7 @@
 #include "motor.h"
 #include "icm.h"
 #include "lqr.h"
+#include "beep.h"
 #include <string.h>
 //-------------------------------------------------------------------------------------------------------------------
 // 本文件是关于adc光电管灰度值读取的相关内容
@@ -395,6 +396,7 @@ void adc_calibration_trigger_once(void)
         adc_calib_state = ADC_CALIB_WAIT_BLACK;
         printsf(0, "cal_state=%d", adc_calib_state);
         printsf(0, "put on black");
+        Buzzer_BeepMs(100);
         return;
     }
 
@@ -408,6 +410,7 @@ void adc_calibration_trigger_once(void)
         adc_calib_flash_save();
         printsf(0, "cal_state=%d", adc_calib_state);
         printsf(0, "done");
+        Buzzer_BeepMs(500);
         return;
     }
 
@@ -415,6 +418,7 @@ void adc_calibration_trigger_once(void)
     adc_calib_state = ADC_CALIB_WAIT_WHITE;
     printsf(0, "cal_state=%d", adc_calib_state);
     printsf(0, "put on white");
+    Buzzer_BeepMs(100);
 }
 
 
@@ -432,7 +436,7 @@ void tracking_control_loop()// 循迹控制主循环
     // 2. 计算线性跟踪误差
     calculate_line_error();
     // 3. LQR 控制器（自动处理有/丢线切换）
-    lqr_update();
+    //lqr_update();
     // 4. 速度环 + 电机输出
     pid_loop_speed_update();
     // 5. 电池补偿 + 电机输出
@@ -458,5 +462,15 @@ void tracking_control_loop()// 循迹控制主循环
 
 3. 主循环中调用：
    tracking_control_loop(); // 每个控制周期调用一次
-   
+
 */
+
+void adc_calib_button_callback(uint32_t event, void *ptr)
+{
+    (void)event;
+    (void)ptr;
+    static uint32_t last_ms = 0;
+    if (g_timestamp_ms - last_ms < 200U) return;  // 200ms 消抖
+    last_ms = g_timestamp_ms;
+    adc_calibration_trigger_once();
+}

@@ -9,6 +9,12 @@ void lqr_update(void)
 {
     float steer;
 
+    if (!start_flag) {
+        target_speed_left  = 0;
+        target_speed_right = 0;
+        return;
+    }
+
     if (!line_lost) {
         // 有线：巡线 + 航向
         steer = -(LQR_K1 * line_error_filtered

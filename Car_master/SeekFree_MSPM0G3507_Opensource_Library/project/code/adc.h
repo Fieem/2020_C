@@ -40,6 +40,7 @@ extern int adc_background_value[8];
 extern int adc_foreground_value[8];
 extern int adc_calibrated_value[8];
 void adc_calibration_trigger_once(void);
+void adc_calib_button_callback(uint32_t event, void *ptr);
 
 
 extern float line_error_raw;
