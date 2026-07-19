@@ -128,8 +128,10 @@ int main (void)
 
     pit_ms_init(PIT_TIM_A0,5,NULL,NULL);	
     pit_ms_init(PIT_TIM_A1,5,NULL,NULL);
-    interrupt_set_priority(TIMA0_INT_IRQn, 1);      // 中断优先级 0-7 越低越高
-    interrupt_set_priority(TIMA1_INT_IRQn, 0);      // 设置定时器A1中断优先级为0
+    // 中断优先级数值越小优先级越高：让 GPIO EXTI 抢占控制计算。
+    interrupt_set_priority(GPIOA_INT_IRQn, 0);      // 编码器/按键 GPIO EXTI
+    interrupt_set_priority(TIMA1_INT_IRQn, 1);      // 5ms 控制中断
+    interrupt_set_priority(TIMA0_INT_IRQn, 2);      // 按键扫描定时器
     wait_start_key();                               // 等待 A31 发车键
     start_flag = 1;                                 // LQR 开始计算目标速度
     printsf(0, "start!");
