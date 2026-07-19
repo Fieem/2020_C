@@ -6,7 +6,7 @@
 
 // 编码器引脚定义
 #define ENC_LEFT_A      B26     // 左轮 A 相 → TIM_G6 定时器捕获
-#define ENC_LEFT_B      B25     // 左轮 B 相 → GPIO 输入（方向判断）
+#define ENC_LEFT_B      B27     // 左轮 B 相 → GPIO 输入（方向判断）
 #define ENC_RIGHT_A     B20     // 右轮 A 相 → TIM_G12 定时器捕获
 #define ENC_RIGHT_B     B24     // 右轮 B 相 → GPIO 输入（方向判断）
 
