@@ -47,6 +47,9 @@ extern float line_error_raw;
 extern float line_error_filtered;
 extern int line_lost;
 
+#define STOP_LINE_THRESHOLD 400   // 8 路灰度值之和超过此值判定为横线停车
+
 void tracking_control_loop(void);
+void check_stop_line(void);
 
 #endif // !ADC_H

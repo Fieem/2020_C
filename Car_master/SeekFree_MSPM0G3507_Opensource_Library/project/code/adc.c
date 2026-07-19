@@ -441,8 +441,10 @@ void tracking_control_loop()// 循迹控制主循环
     pid_loop_speed_update();
     // 5. 电池补偿 + 电机输出
     Motor_Control();
+    // 6. 横线停车检测
+    check_stop_line();
 
-} 
+}
 
 /*
 使用示例：
@@ -464,6 +466,24 @@ void tracking_control_loop()// 循迹控制主循环
    tracking_control_loop(); // 每个控制周期调用一次
 
 */
+
+// 横线停车检测：8 路灰度值之和超过阈值则停车
+void check_stop_line(void)
+{
+    int sum = 0;
+    for (int i = 0; i < 8; i++) {
+        sum += adc_calibrated_value[i];
+    }
+
+    if (sum > STOP_LINE_THRESHOLD) {
+        task_number = 2;
+    }
+}
+
+int16 time_control(float time)
+{
+    
+}
 
 void adc_calib_button_callback(uint32_t event, void *ptr)
 {

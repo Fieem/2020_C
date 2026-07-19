@@ -3,7 +3,18 @@
 #include "adc.h"
 #include "project_globals.h"
 
+float lqr_speed_set = 30.0f;    // 默认速度，运行时可通过总路程/目标时间重新设定
 static int prev_line_lost = 0;
+
+// 时间控制：根据总路程和目标时间计算设定速度
+// time: 目标时间（秒），total_pulses: 全程编码器脉冲总数（外部变量）
+// 返回值: 设定速度（脉冲/5ms）
+int16 time_control(float time)
+{
+    if (time <= 0.01f) return 0;                    // 防除零
+    lqr_speed_set = total_pulses / (time * 200.0f); // 200 = 1s / 5ms
+    return (int16)lqr_speed_set;
+}
 
 void lqr_update(void)
 {
@@ -36,6 +47,6 @@ void lqr_update(void)
     if (steer >  LQR_STEER_MAX) steer =  LQR_STEER_MAX;
     if (steer < -LQR_STEER_MAX) steer = -LQR_STEER_MAX;
 
-    target_speed_left  = LQR_SPEED_SET + steer;
-    target_speed_right = LQR_SPEED_SET - steer;
+    target_speed_left  = lqr_speed_set + steer;
+    target_speed_right = lqr_speed_set - steer;
 }
