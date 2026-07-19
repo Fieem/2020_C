@@ -6,13 +6,19 @@
 
 static volatile int32_t s_right_exti_count = 0;
 
+static inline uint8 encoder_right_b_level(void)
+{
+    // B17 属于 GPIOB，直接读取 DIN，避免 gpio_get_level() 的函数调用开销。
+    return (uint8)((gpio_group[1]->DIN31_0 & (1UL << 17)) != 0UL);
+}
+
 static void encoder_right_a_callback(uint32 event, void *ptr)
 {
     (void)event;
     (void)ptr;
 
     // 保持原有符号约定：B=1 为正转，B=0 为反转。
-    if (gpio_get_level(ENC_RIGHT_B))
+    if (encoder_right_b_level())
     {
         s_right_exti_count++;
     }
