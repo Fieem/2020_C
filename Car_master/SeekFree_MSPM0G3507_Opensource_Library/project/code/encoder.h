@@ -10,7 +10,7 @@
 #define ENC_LEFT_B      B7      // 左轮 B 相 → TIMG8 CH2
 // 右轮：A 相 EXTI 上升沿，B 相 GPIO 采样判向
 #define ENC_RIGHT_A     B20     // 右轮 A 相 → GPIO EXTI
-#define ENC_RIGHT_B     B24     // 右轮 B 相 → GPIO 输入（方向判断）
+#define ENC_RIGHT_B     B17     // 右轮 B 相 → GPIO 输入（方向判断）
 
 #define ENC_LEFT_QEI_CH1    TIMG8_ENCODER1_CH1_B6
 #define ENC_LEFT_QEI_CH2    TIMG8_ENCODER1_CH2_B7
