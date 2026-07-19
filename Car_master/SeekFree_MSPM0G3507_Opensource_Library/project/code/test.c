@@ -86,7 +86,14 @@ static int test_key_equal(const char *a, const char *b)
 static int test_vofa_apply_kv(const char *key, float value)
 {
     
-    
+    if (test_key_equal(key, "TY")) { target_speed_left = value; target_speed_right = value;                  printf("[VOFA] T_Speed=%.4f\r\n", value);                return 1; }
+
+    if (test_key_equal(key, "P1")) { pid_speed_left.Kp = value;                                              printf("[VOFA] P1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "I1")) { pid_speed_left.Ki = value;                                              printf("[VOFA] I1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "D1")) { pid_speed_left.Kd = value;                                              printf("[VOFA] D1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "P2")) { pid_speed_right.Kp = value;                                             printf("[VOFA] P1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "I2")) { pid_speed_right.Ki = value;                                             printf("[VOFA] I1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "D2")) { pid_speed_right.Kd = value;                                             printf("[VOFA] D1=%.4f\r\n", value);                return 1; }
 // RSTC command removed — circle counting not needed
     if (test_key_equal(key, "CAL"))
     {
@@ -253,9 +260,11 @@ void test_vofa_init(void)
 {
     s_vofa_frame_len = 0U;
     memset(s_vofa_frame_buf, 0, sizeof(s_vofa_frame_buf));
-    
     uart_set_callback(TEST_VOFA_UART_INDEX, test_vofa_uart_callback, NULL);
     uart_set_interrupt_config(TEST_VOFA_UART_INDEX, UART_INTERRUPT_CONFIG_RX_ENABLE);
+    // 不用中断回调，走主循环 test_vofa_poll() 轮询，避免 ISR 里调 printf 死锁
+    // uart_set_callback(TEST_VOFA_UART_INDEX, test_vofa_uart_callback, NULL);
+    // uart_set_interrupt_config(TEST_VOFA_UART_INDEX, UART_INTERRUPT_CONFIG_RX_ENABLE);
 }
 
 void prints(uint8_t index, const char *content)

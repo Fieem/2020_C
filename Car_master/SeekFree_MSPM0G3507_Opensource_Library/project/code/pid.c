@@ -113,16 +113,20 @@ AddressPID_Controller pid_speed_right = {0};
 
 void pid_loop_speed_init(void)
 {
-    pid_pos_init(&pid_speed_left,  0.5f, 0.1f, 0.0f);
-    pid_pos_init(&pid_speed_right, 0.5f, 0.1f, 0.0f);
+    pid_pos_init(&pid_speed_left,  1.3f, 0.06f, 0.0f);
+    pid_pos_init(&pid_speed_right, 1.3f, 0.06f, 0.0f);
 }
 
 void pid_loop_speed_update(void)
 {
-    target_speed_left  = pid_pos_calculate(&pid_speed_left,  target_speed_left,  (float)enc_left,
-                                           -500.0f, 500.0f, -100.0f, 100.0f);
-    target_speed_right = pid_pos_calculate(&pid_speed_right, target_speed_right, (float)enc_right,
-                                           -500.0f, 500.0f, -100.0f, 100.0f);
+    // 编码器只出正数 → PID 控幅值，方向由 target 符号决定
+    float left_mag  = pid_pos_calculate(&pid_speed_left,  fabsf(target_speed_left),  (float)enc_left,
+                                         0.0f, 500.0f, 0.0f, 30.0f);
+    float right_mag = pid_pos_calculate(&pid_speed_right, fabsf(target_speed_right), (float)enc_right,
+                                         0.0f, 500.0f, 0.0f, 30.0f);
+
+    target_pwm_left  = (target_speed_left  >= 0.0f) ? left_mag : -left_mag;
+    target_pwm_right = (target_speed_right >= 0.0f) ? right_mag : -right_mag;
 }
 // void pid_loop_speed_update(void)
 // {

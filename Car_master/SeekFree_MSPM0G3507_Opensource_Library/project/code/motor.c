@@ -27,15 +27,15 @@ void Motor_SetLeft(int32_t PWM)
     {
         // 正转逻辑
         pwm_duty = (PWM > PWM_MAX_VALUE) ? PWM_MAX_VALUE : (uint32_t)PWM;
-        gpio_set_level(PWM_LEFT_DIR_PIN, 0); // 设置方向引脚为低，表示正转
+        gpio_set_level(PWM_LEFT_DIR_PIN, 1); // 设置方向引脚为高，表示正转
     }
     else
     {
         // 反转逻辑：将负数转为正数作为占空比
         pwm_duty = (-PWM > PWM_MAX_VALUE) ? PWM_MAX_VALUE : (uint32_t)(-PWM);
-        gpio_set_level(PWM_LEFT_DIR_PIN, 1); // 设置方向引脚为高，表示反转
+        gpio_set_level(PWM_LEFT_DIR_PIN, 0); // 设置方向引脚为低，表示反转
     }
-    
+
     // 调用驱动层 PWM 函数设置占空比
     // 需要将占空比转换为驱动函数期望的范围（0-100）
     pwm_set_duty(PWM_LEFT_CHANNEL, pwm_duty);
@@ -45,20 +45,20 @@ void Motor_SetRight(int32_t PWM)
 {
     measure_pwm = PWM;
     uint32_t pwm_duty = 0;
-    
+
     if (PWM >= 0)
     {
         // 正转逻辑
         pwm_duty = (PWM > PWM_MAX_VALUE) ? PWM_MAX_VALUE : (uint32_t)PWM;
-        gpio_set_level(PWM_RIGHT_DIR_PIN, 0); // 设置方向引脚为低，表示正转
+        gpio_set_level(PWM_RIGHT_DIR_PIN, 1); // 设置方向引脚为高，表示正转
     }
     else
     {
         // 反转逻辑：将负数转为正数作为占空比
         pwm_duty = (-PWM > PWM_MAX_VALUE) ? PWM_MAX_VALUE : (uint32_t)(-PWM);
-        gpio_set_level(PWM_RIGHT_DIR_PIN, 1); // 设置方向引脚为高，表示反转
+        gpio_set_level(PWM_RIGHT_DIR_PIN, 0); // 设置方向引脚为低，表示反转
     }
-    
+
     // 调用驱动层 PWM 函数设置占空比
     // 需要将占空比转换为驱动函数期望的范围（0-100）
     pwm_set_duty(PWM_RIGHT_CHANNEL, pwm_duty);
@@ -137,8 +137,8 @@ void Motor_Control(void)
         comp_ratio = max_comp_ratio;
     }
 
-    compensated_left = target_speed_left * comp_ratio;
-    compensated_right = target_speed_right * comp_ratio;
+    compensated_left = target_pwm_left * comp_ratio;
+    compensated_right = target_pwm_right * comp_ratio;
 
     compensated_left *= 100;
     compensated_right *= 100;
