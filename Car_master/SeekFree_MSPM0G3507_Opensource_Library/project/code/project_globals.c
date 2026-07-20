@@ -13,7 +13,7 @@ float yaw_rate_z = 0.0f;
 
 float line_error_filtered = 0.0f;
 
-float speed_set = 0.0f;
+// float speed_set = 0.0f;
 
 AddressPID_Controller pid_angle = {0};
 AddressPID_Controller pid_yaw = {0};
@@ -36,4 +36,4 @@ int32_t enc_right_acc = 0;
 float target_pwm_left = 0.0f;
 float target_pwm_right = 0.0f;
 
-float total_pulses = 0.0f;      // 全程编码器脉冲总数，time_control() 计算用
+float total_pulses = 68559.0f;      // 全程编码器脉冲总数，time_control() 计算用

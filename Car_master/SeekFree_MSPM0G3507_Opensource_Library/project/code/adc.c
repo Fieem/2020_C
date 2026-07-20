@@ -6,6 +6,7 @@
 #include "motor.h"
 #include "icm.h"
 #include "lqr.h"
+#include "servo.h"
 #include "beep.h"
 #include <string.h>
 //-------------------------------------------------------------------------------------------------------------------
@@ -434,13 +435,16 @@ void tracking_control_loop()// 循迹控制主循环
     adc_capture(); // 基于最值映射归一化ADC值到0-100
     // 2. 计算线性跟踪误差
     calculate_line_error();
-    // 3. LQR 控制器（自动处理有/丢线切换）
-    //lqr_update();
-    // 4. 速度环 + 电机输出
+    // 3. 舵机转向控制（PD 反馈，替代 LQR 差速）
+    servo_steering_update();
+    // 4. 两轮同速前进
+    target_speed_left  = speed_set;
+    target_speed_right = speed_set;
+    // 5. 速度环 + 电机输出
     pid_loop_speed_update();
-    // 5. 电池补偿 + 电机输出
+    // 6. 电池补偿 + 电机输出
     Motor_Control();
-    // 6. 横线停车检测
+    // 7. 横线停车检测（测试阶段注释）
     //check_stop_line();
 
 }

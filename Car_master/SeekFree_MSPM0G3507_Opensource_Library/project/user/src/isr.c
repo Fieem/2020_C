@@ -46,30 +46,11 @@
 void TIMA0_IRQHandler (void)
 {
     pit_callback_list[0](0, pit_callback_ptr_list[0]);
-    pit_callback_list[0](0, pit_callback_ptr_list[0]);
-    key_scanner();                      // 按键扫描
 }
 
 void TIMA1_IRQHandler (void)
 {
     pit_callback_list[1](0, pit_callback_ptr_list[1]);
-    g_timestamp_ms += 5;
-    
-    yaw_rate_z = 0.0f;
-    get_ICM_data();   
-    if ((Yaw_g > -GYRO_Z_DEADBAND_DPS) && (Yaw_g < GYRO_Z_DEADBAND_DPS))
-    {
-        Yaw_g = 0.0f;
-    }
-    yaw_rate_z = Yaw_g;
-    enc_left  = encoder_take_left();
-    enc_right = encoder_take_right();
-    enc_left_acc  += enc_left / 4;
-    enc_right_acc += enc_right;
-    // 左右轮脉冲取平均（防止倒退导致 distance_accum 减少）
-    float avg_pulses = 0.5f * ((float)enc_left + (float)(enc_right));
-    distance_accum += avg_pulses;
-    tracking_control_loop();        // 循迹控制主循环
 }
 
 void TIMG0_IRQHandler (void)
@@ -80,6 +61,8 @@ void TIMG0_IRQHandler (void)
 void TIMG6_IRQHandler (void)
 {
     pit_callback_list[3](0, pit_callback_ptr_list[3]);
+    pit_callback_list[3](0, pit_callback_ptr_list[3]);
+    key_scanner();                      // 按键扫描
 }
 
 void TIMG7_IRQHandler (void)
@@ -95,6 +78,23 @@ void TIMG8_IRQHandler (void)
 void TIMG12_IRQHandler (void)
 {
     pit_callback_list[6](0, pit_callback_ptr_list[6]);
+    g_timestamp_ms += 5;
+
+    yaw_rate_z = 0.0f;
+    get_ICM_data();
+    if ((Yaw_g > -GYRO_Z_DEADBAND_DPS) && (Yaw_g < GYRO_Z_DEADBAND_DPS))
+    {
+        Yaw_g = 0.0f;
+    }
+    yaw_rate_z = Yaw_g;
+    enc_left  = encoder_take_left();
+    enc_right = encoder_take_right();
+    enc_left_acc  += enc_left / 4;
+    enc_right_acc += enc_right;
+    // 左右轮脉冲取平均（防止倒退导致 distance_accum 减少）
+    float avg_pulses = 0.5f * ((float)enc_left + (float)(enc_right));
+    distance_accum += avg_pulses;
+    tracking_control_loop();        // 循迹控制主循环
 }
 
 void UART0_IRQHandler (void)

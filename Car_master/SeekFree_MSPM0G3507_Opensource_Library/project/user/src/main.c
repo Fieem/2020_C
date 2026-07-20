@@ -46,6 +46,7 @@
 #include "encoder.h"
 #include "zf_driver_exti.h"
 #include "beep.h"
+#include "servo.h"
 #define IMU_WARMUP_MS (2000)            // ICM42688 陀螺仪热身时间，单位为毫秒，建议至少 2000ms 以确保陀螺仪稳定
 static uint32_t s_last_100ms = 0;       // 上次100ms行为触发时间
 
@@ -102,6 +103,7 @@ int main (void)
         printsf(0, "ADC calib loaded from flash");
     }
     Motor_Init();                                   // 初始化电机控制模块
+     Servo_Init();                                  // 初始化，默认输出中位 0°
     Buzzer_Init();                                  // 初始化蜂鸣器
     pid_loop_angle_init();
     pid_loop_yaw_init();
@@ -126,12 +128,12 @@ int main (void)
 
     //while (start_flag == 1);
 
-    pit_ms_init(PIT_TIM_A0,5,NULL,NULL);	
-    pit_ms_init(PIT_TIM_A1,5,NULL,NULL);
+    pit_ms_init(PIT_TIM_G6, 5, NULL, NULL);
+    pit_ms_init(PIT_TIM_G12, 5, NULL, NULL);
     // 中断优先级数值越小优先级越高：让 GPIO EXTI 抢占控制计算。
     interrupt_set_priority(GPIOA_INT_IRQn, 0);      // 编码器/按键 GPIO EXTI
-    interrupt_set_priority(TIMA1_INT_IRQn, 1);      // 5ms 控制中断
-    interrupt_set_priority(TIMA0_INT_IRQn, 2);      // 按键扫描定时器
+    interrupt_set_priority(TIMG12_INT_IRQn, 1);     // 5ms 控制中断
+    interrupt_set_priority(TIMG6_INT_IRQn, 2);      // 按键扫描定时器
     wait_start_key();                               // 等待 A31 发车键
     start_flag = 1;                                 // LQR 开始计算目标速度
     printsf(0, "start!");
