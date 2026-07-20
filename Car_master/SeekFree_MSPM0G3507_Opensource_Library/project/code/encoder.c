@@ -39,7 +39,7 @@ int32_t encoder_take_left(void)
     int32_t count;
     uint32 primask = interrupt_global_disable();
 
-    count = (int32_t)encoder_get_count(TIM_G8);
+    count = -(int32_t)encoder_get_count(TIM_G8);
     encoder_clear_count(TIM_G8);
 
     interrupt_global_enable(primask);
@@ -51,7 +51,7 @@ int32_t encoder_take_right(void)
     int32_t count;
     uint32 primask = interrupt_global_disable();
 
-    count = s_right_exti_count;
+    count = -s_right_exti_count;
     s_right_exti_count = 0;
 
     interrupt_global_enable(primask);

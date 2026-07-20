@@ -153,7 +153,7 @@ int main (void)
         {
             s_last_100ms = now;
             //printf("Pitch:%.2f\r\n", Roll_a); 
-            printf("dis=%.2f\r\n",distance_accum);
+            //printf("dis=%.2f\r\n",distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 
             //printf("Data: %.2f, %.2f, %.2f, %d, %d\r\n", target_gyro_z, yaw_rate_z, line_error_filtered, current_left_pwm, current_right_pwm);
             //printf("Data: %.2f, %.2f, %.2f\r\n", Yaw_TotalAngle, Pitch_a, Roll_a);
@@ -167,7 +167,7 @@ int main (void)
                 // l / 20.0f, r / 20.0f, (double)target_speed_left,
                 // gpio_get_level(B25), gpio_get_level(B24));
                 //printf("Data:%d, %d,%.2f,%.2f\r\n",(int)l, (int)r,target_speed_left,target_speed_right);
-                //printf("Data:%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left);
+                printf("Data:%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left);
             }
             
         // (board communication removed — not needed for slope task)
