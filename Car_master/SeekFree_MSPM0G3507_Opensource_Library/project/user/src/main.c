@@ -135,7 +135,7 @@ int main (void)
     interrupt_set_priority(TIMG12_INT_IRQn, 1);     // 5ms 控制中断
     interrupt_set_priority(TIMG6_INT_IRQn, 2);      // 按键扫描定时器
     wait_start_key();                               // 等待 A31 发车键
-    start_flag = 1;                                 // LQR 开始计算目标速度
+    start_flag = 1;                                 
     printsf(0, "start!");
 
     battery_voltage = adc_mean_filter_convert(ADC0_CH7_A22, 10)*0.0089388f;
@@ -165,11 +165,12 @@ int main (void)
                 r = enc_right_acc;
                 enc_left_acc = 0;
                 enc_right_acc = 0;
+                printf("Pitch:%.2f\r\n", Roll_a);
                 // printf("Data:%.1f,%.1f,%.1f,%d,%d\r\n",
                 // l / 20.0f, r / 20.0f, (double)target_speed_left,
                 // gpio_get_level(B25), gpio_get_level(B24));
                 //printf("Data:%d, %d,%.2f,%.2f\r\n",(int)l, (int)r,target_speed_left,target_speed_right);
-                printf("Data:%.1f,%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left,target_pwm_left);
+                //printf("Data:%.1f,%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left,target_pwm_left);
             }
             
         // (board communication removed — not needed for slope task)

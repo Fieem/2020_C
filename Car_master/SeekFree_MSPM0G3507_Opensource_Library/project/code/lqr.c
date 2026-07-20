@@ -3,7 +3,7 @@
 #include "adc.h"
 #include "project_globals.h"
 
-float speed_set = 30.0f;    // 默认速度，运行时可通过总路程/目标时间重新设定
+float speed_set = 0.0f;    // 默认速度，运行时可通过总路程/目标时间重新设定
 static int prev_line_lost = 0;
 
 // 时间控制：根据总路程和目标时间计算设定速度
