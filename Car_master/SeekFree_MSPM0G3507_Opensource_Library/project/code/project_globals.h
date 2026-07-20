@@ -35,4 +35,7 @@ extern int32_t enc_right_acc;
 
 extern float target_pwm_left;
 extern float target_pwm_right;
+
+extern float total_pulses;      // 全程编码器脉冲总数，time_control() 计算用
+
 #endif /* PROJECT_GLOBALS_H */

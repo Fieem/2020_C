@@ -35,3 +35,5 @@ int32_t enc_right_acc = 0;
 
 float target_pwm_left = 0.0f;
 float target_pwm_right = 0.0f;
+
+float total_pulses = 0.0f;      // 全程编码器脉冲总数，time_control() 计算用
