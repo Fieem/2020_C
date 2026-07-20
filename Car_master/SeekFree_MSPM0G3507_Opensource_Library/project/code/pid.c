@@ -120,11 +120,15 @@ void pid_loop_speed_init(void)
 void pid_loop_speed_update(void)
 {
     // 编码器只出正数 → PID 控幅值，方向由 target 符号决定
-    float left_mag  = pid_pos_calculate(&pid_speed_left,  fabsf(target_speed_left),  fabsf((float)enc_left/4),
-                                         0.0f, 500.0f, 0.0f, 30.0f);
-    float right_mag = pid_pos_calculate(&pid_speed_right, fabsf(target_speed_right), fabsf((float)enc_right),
-                                         0.0f, 500.0f, 0.0f, 30.0f);
+    // float left_mag  = pid_pos_calculate(&pid_speed_left,  fabsf(target_speed_left),  fabsf((float)enc_left/4),
+    //                                      0.0f, 500.0f, 0.0f, 30.0f);
+    // float right_mag = pid_pos_calculate(&pid_speed_right, fabsf(target_speed_right), fabsf((float)enc_right),
+    //                                      0.0f, 500.0f, 0.0f, 30.0f);
 
+    float left_mag  = pid_pos_calculate(&pid_speed_left,  target_speed_left,  (float)enc_left/4,
+                                         -500.0f, 500.0f, -30.0f, 30.0f);
+    float right_mag = pid_pos_calculate(&pid_speed_right, target_speed_right, (float)enc_right,
+                                         -500.0f, 500.0f, -30.0f, 30.0f);                                     
     target_pwm_left  = (target_speed_left  >= 0.0f) ? left_mag : -left_mag;
     target_pwm_right = (target_speed_right >= 0.0f) ? right_mag : -right_mag;
 }

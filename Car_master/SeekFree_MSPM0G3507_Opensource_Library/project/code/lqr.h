@@ -1,6 +1,8 @@
 #ifndef LQR_H
 #define LQR_H
 
+#include "zf_common_headfile.h"
+
 // LQR 增益（由 lqr_gain.py 计算）
 #define LQR_K1  4.31f    // line_error 增益
 #define LQR_K2  1.36f    // heading_error 增益

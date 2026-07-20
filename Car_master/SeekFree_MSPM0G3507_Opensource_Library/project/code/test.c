@@ -51,6 +51,7 @@
 #include "adc.h"
 #include "zf_driver_uart.h"
 #include "project_globals.h"
+#include "lqr.h"
 #include "zf_common_fifo.h"
 static void prints_u(uint8_t index, unsigned int val);
 
@@ -94,6 +95,7 @@ static int test_vofa_apply_kv(const char *key, float value)
     if (test_key_equal(key, "P2")) { pid_speed_right.Kp = value;                                             printf("[VOFA] P1=%.4f\r\n", value);                return 1; }
     if (test_key_equal(key, "I2")) { pid_speed_right.Ki = value;                                             printf("[VOFA] I1=%.4f\r\n", value);                return 1; }
     if (test_key_equal(key, "D2")) { pid_speed_right.Kd = value;                                             printf("[VOFA] D1=%.4f\r\n", value);                return 1; }
+    if (test_key_equal(key, "TIME")) { lqr_speed_set=time_control(value);                                    printf("[VOFA] Time=%.4f\r\n", value);              return 1; }
 // RSTC command removed — circle counting not needed
     if (test_key_equal(key, "CAL"))
     {

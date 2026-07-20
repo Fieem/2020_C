@@ -427,8 +427,8 @@ void adc_calibration_trigger_once(void)
 void tracking_control_loop()// 循迹控制主循环
 {
     if( task_number == 2 || task_number == 3 ) {
-        Motor_SetRight(0); // 停止右电机
-        Motor_SetLeft(0); // 停止左电机
+        target_speed_left = 0; // 停车
+        target_speed_right = 0; // 停车
         return; // 如果电机未使能，直接返回
     }
     // 1. 采集ADC数据并进行校准
@@ -480,10 +480,6 @@ void check_stop_line(void)
     }
 }
 
-int16 time_control(float time)
-{
-    
-}
 
 void adc_calib_button_callback(uint32_t event, void *ptr)
 {

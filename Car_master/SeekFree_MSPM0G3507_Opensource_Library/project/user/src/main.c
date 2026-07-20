@@ -167,7 +167,7 @@ int main (void)
                 // l / 20.0f, r / 20.0f, (double)target_speed_left,
                 // gpio_get_level(B25), gpio_get_level(B24));
                 //printf("Data:%d, %d,%.2f,%.2f\r\n",(int)l, (int)r,target_speed_left,target_speed_right);
-                printf("Data:%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left);
+                printf("Data:%.1f,%.1f,%.1f,%.1f\r\n", l / 20.0f,r / 20.0f, (double)target_speed_left,target_pwm_left);
             }
             
         // (board communication removed — not needed for slope task)
