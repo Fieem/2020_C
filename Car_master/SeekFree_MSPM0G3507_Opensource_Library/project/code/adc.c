@@ -429,7 +429,6 @@ void tracking_control_loop()// 循迹控制主循环
     if( task_number == 2 || task_number == 3 ) {
         target_speed_left = 0; // 停车
         target_speed_right = 0; // 停车
-        return; // 如果电机未使能，直接返回
     }
     // 1. 采集ADC数据并进行校准
     adc_capture(); // 基于最值映射归一化ADC值到0-100
@@ -442,7 +441,7 @@ void tracking_control_loop()// 循迹控制主循环
     // 5. 电池补偿 + 电机输出
     Motor_Control();
     // 6. 横线停车检测
-    check_stop_line();
+    //check_stop_line();
 
 }
 
