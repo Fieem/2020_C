@@ -1,6 +1,7 @@
 #include "servo.h"
 #include "zf_driver_pwm.h"
 #include "adc.h"
+#include "project_globals.h"
 #include <math.h>
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -86,21 +87,24 @@ void Servo_SetDuty(uint32_t duty)
 //-------------------------------------------------------------------------------------------------------------------
 void servo_steering_update(void)
 {
-    static float prev_line_error = 0.0f;
-    static float hold_angle      = 0.0f;
-
-    float angle;
+    static float prev_error    = 0.0f;
+    static float smooth_delta  = 0.0f;      // 低通滤波后的增量
+    const  float delta_alpha   = 0.3f;      // 滤波系数：越小越平滑
 
     if (!line_lost) {
-        // PD 控制：负号使车回正（线偏左 → 左打舵）
-        float d_error = line_error_filtered - prev_line_error;
-        prev_line_error = line_error_filtered;
-        angle = -(SERVO_KP * line_error_filtered + SERVO_KD * d_error);
-        hold_angle = angle;
+        // 增量式 PD：误差 → 舵角增量累加，误差消失时角度保持不动
+        float d_error = line_error_filtered - prev_error;
+        prev_error = line_error_filtered;
+        float raw_delta = (SERVO_KP * line_error_filtered + SERVO_KD * d_error);
+        smooth_delta = delta_alpha * raw_delta + (1.0f - delta_alpha) * smooth_delta;
+        servo_accum_angle += smooth_delta;
+        // 限幅
+        if (servo_accum_angle < SERVO_ANGLE_MIN) servo_accum_angle = SERVO_ANGLE_MIN;
+        if (servo_accum_angle > SERVO_ANGLE_MAX) servo_accum_angle = SERVO_ANGLE_MAX;
     } else {
-        // 丢线：保持当前角度，不摆舵
-        angle = hold_angle;
+        smooth_delta = 0.0f;    // 丢线时重置滤波
     }
+    // 丢线：servo_accum_angle 保持不动
 
-    Servo_SetAngle(angle);
+    Servo_SetAngle(servo_accum_angle);
 }

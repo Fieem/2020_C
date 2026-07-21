@@ -131,7 +131,7 @@ int main (void)
 
     pit_ms_init(PIT_TIM_G6, 5, NULL, NULL);
     pit_ms_init(PIT_TIM_G12, 5, NULL, NULL);
-    // 中断优先级数值越小优先级越高：让 GPIO EXTI 抢占控制计算。
+    // 中断优先级数值越小优 先级越高：让 GPIO EXTI 抢占控制计算。
     interrupt_set_priority(GPIOA_INT_IRQn, 0);      // 编码器/按键 GPIO EXTI
     interrupt_set_priority(TIMG12_INT_IRQn, 1);     // 5ms 控制中断
     interrupt_set_priority(TIMG6_INT_IRQn, 2);      // 按键扫描定时器
@@ -166,6 +166,7 @@ int main (void)
                 r = enc_right_acc;
                 enc_left_acc = 0;
                 enc_right_acc = 0;
+                printsf(0,"%.2f,%.2f",servo_accum_angle,line_error_filtered);
                 //printf("Pitch:%.2f\r\n", Roll_a);
                 // printf("Data:%.1f,%.1f,%.1f,%d,%d\r\n",
                 // l / 20.0f, r / 20.0f, (double)target_speed_left,

@@ -37,3 +37,4 @@ float target_pwm_left = 0.0f;
 float target_pwm_right = 0.0f;
 
 float total_pulses = 68559.0f;      // 全程编码器脉冲总数，time_control() 计算用
+float servo_accum_angle = 0.0f;     // 舵机累加角度，增量式 PD 使用

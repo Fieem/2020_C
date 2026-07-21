@@ -234,17 +234,17 @@ void calculate_line_error(void)
     he_R = adc_calibrated_value[4] + adc_calibrated_value[5] + adc_calibrated_value[6] + adc_calibrated_value[7];
 
     // 左侧加权和：位置权重递减
-    cha_L = (adc_calibrated_value[0] * 5) + (adc_calibrated_value[1] * 4) + (adc_calibrated_value[2] * 3) + adc_calibrated_value[3];
+    cha_L = (adc_calibrated_value[0] * 3) + (adc_calibrated_value[1] * 1) + (adc_calibrated_value[2]*0.5 ) + adc_calibrated_value[3]*0;
     // 右侧加权和：位置权重递减
-    cha_R = (adc_calibrated_value[7] * 5) + (adc_calibrated_value[6] * 4) + (adc_calibrated_value[5] * 3) + adc_calibrated_value[4];
+    cha_R = (adc_calibrated_value[7] * 3) + (adc_calibrated_value[6] * 1) + (adc_calibrated_value[5]*0.5 ) + adc_calibrated_value[4]*0;
     // 计算差比和
     float denominator = he_L + he_R;
 
     // 丢线判定：总能量太小，说明看不到有效线，滤波值缓慢回 0
-    if (denominator < 20.0f)
+    if (denominator < 50.0f)
     {
         line_lost = 1;
-        line_error_filtered = 0.0f;
+        //line_error_filtered = 0.0f;
         return;
     }
     line_lost = 0;
@@ -428,7 +428,7 @@ void adc_calibration_trigger_once(void)
 void tracking_control_loop()// 循迹控制主循环
 {
     if( task_number == 2 || task_number == 3 ) {
-        target_speed_left = 0; // 停车
+        target_speed_left = 0;  // 停车
         target_speed_right = 0; // 停车
     }
     // 1. 采集ADC数据并进行校准
@@ -470,16 +470,26 @@ void tracking_control_loop()// 循迹控制主循环
 
 */
 
-// 横线停车检测：8 路灰度值之和超过阈值则停车
+// 横线停车检测：连续多帧灰度之和超阈值才触发，避免误判
 void check_stop_line(void)
 {
+    static uint8_t stop_count = 0;
+
     int sum = 0;
     for (int i = 0; i < 8; i++) {
         sum += adc_calibrated_value[i];
     }
 
     if (sum > STOP_LINE_THRESHOLD) {
-        task_number = 2;
+        if (stop_count < STOP_LINE_COUNT) {
+            stop_count++;
+            if (stop_count >= STOP_LINE_COUNT && task_number != 2) {
+                task_number = 2;
+                Buzzer_BeepMs(500);     // 停车时蜂鸣 200ms
+            }
+        }
+    } else {
+        stop_count = 0;     // 一帧不满足就清零
     }
 }
 

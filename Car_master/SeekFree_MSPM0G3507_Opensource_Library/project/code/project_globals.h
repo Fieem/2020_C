@@ -36,6 +36,7 @@ extern int32_t enc_right_acc;
 extern float target_pwm_left;
 extern float target_pwm_right;
 
-extern float total_pulses;      // 全程编码器脉冲总数，time_control() 计算用
+extern float total_pulses;       // 全程编码器脉冲总数，time_control() 计算用
+extern float servo_accum_angle;  // 舵机累加角度，增量式 PD 使用
 
 #endif /* PROJECT_GLOBALS_H */

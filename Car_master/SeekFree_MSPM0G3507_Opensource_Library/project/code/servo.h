@@ -23,16 +23,16 @@
 #define SERVO_DUTY_MAX      (1250)   // 2.5ms 脉宽
 
 // 角度范围
-#define SERVO_ANGLE_MIN     (-60.0f)
-#define SERVO_ANGLE_MAX     (+60.0f)
+#define SERVO_ANGLE_MIN     (-13.0f)
+#define SERVO_ANGLE_MAX     (+13.0f)
 
 // 舵盘安装偏置（正值=往右修正，负值=往左修正）
 // 当前舵盘中位偏右约30°，设为 -30 补偿
-#define SERVO_MID_OFFSET    (-60.0f)
+#define SERVO_MID_OFFSET    (-55.0f)
 
 // 舵机转向 PD 参数
-#define SERVO_KP            (3.0f)     // 比例增益：线偏差 → 舵角
-#define SERVO_KD            (0.5f)      // 微分增益：抑制过冲摆动
+#define SERVO_KP            (2.0f)     // 比例增益：线偏差 → 舵角
+#define SERVO_KD            (0.0f)      // 微分增益：抑制过冲摆动
 
 //-------------------------------------------------------------------------------------------------------------------
 // 函数声明
