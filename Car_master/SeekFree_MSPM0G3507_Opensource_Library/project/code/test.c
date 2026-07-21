@@ -125,6 +125,20 @@ static int test_vofa_apply_kv(const char *key, float value)
         return 1;
     }
         
+    if (test_key_equal(key, "RESTART"))
+    {
+        if (value > 0.5f)
+        {
+            start_flag          = 0;
+            drive_state         = STATE_DRIVE;
+            task_number         = 0;
+            distance_accum      = 0.0f;
+            servo_accum_angle   = 0.0f;
+            printsf(0, "[VOFA] RESTART");
+        }
+        return 1;
+    }
+
     if (test_key_equal(key, "BAT"))
     {
         if (value > 0.5f)

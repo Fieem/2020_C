@@ -50,6 +50,19 @@ extern int line_lost;
 #define STOP_LINE_THRESHOLD 600   // 8 路灰度值之和超过此值判定为横线停车
 #define STOP_LINE_COUNT     10    // 连续检测帧数（5ms/帧，10帧=50ms）
 
+// 状态机
+typedef enum {
+    STATE_DRIVE = 0,        // 直行：舵机 0°，不读灰度，等距离
+    STATE_TURN  = 1,        // 转弯：舵机固定角，读灰度等停车
+    STATE_STOP  = 2,        // 停止：目标速度 0
+} drive_state_t;
+
+// 状态机阈值
+#define DRIVE_DIST_THRESHOLD    24000.0f    // 直行距离阈值（编码器脉冲）
+#define TURN_SERVO_ANGLE        13.0f       // 转弯时舵机固定角度
+
+extern drive_state_t drive_state;
+
 void tracking_control_loop(void);
 void check_stop_line(void);
 

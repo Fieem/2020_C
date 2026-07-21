@@ -425,28 +425,42 @@ void adc_calibration_trigger_once(void)
 
 // lap_control_update_5ms() removed — circle counting not needed for slope task
 
-void tracking_control_loop()// 循迹控制主循环
+void tracking_control_loop()// 循迹控制主循环（状态机）
 {
-    if( task_number == 2 || task_number == 3 ) {
-        target_speed_left = 0;  // 停车
-        target_speed_right = 0; // 停车
-    }
-    // 1. 采集ADC数据并进行校准
-    adc_capture(); // 基于最值映射归一化ADC值到0-100
-    // 2. 计算线性跟踪误差
-    calculate_line_error();
-    // 3. 舵机转向控制（PD 反馈，替代 LQR 差速）
-    servo_steering_update();
-    // 4. 两轮同速前进
+    // 目标速度（全程有效，除非状态机覆盖）
     target_speed_left  = speed_set;
     target_speed_right = speed_set;
-    // 5. 速度环 + 电机输出
-    pid_loop_speed_update();
-    // 6. 电池补偿 + 电机输出
-    Motor_Control();
-    // 7. 横线停车检测（测试阶段注释）
-    //check_stop_line();
 
+    switch (drive_state) {
+
+    case STATE_DRIVE:
+        // 舵机保持直行，不读灰度
+        servo_accum_angle = 0.0f;
+        Servo_SetAngle(0.0f);
+        if (distance_accum >= DRIVE_DIST_THRESHOLD) {
+            drive_state = STATE_TURN;
+        }
+        break;
+
+    case STATE_TURN:
+        // 舵机固定角度，读灰度检测横线停车
+        Servo_SetAngle(TURN_SERVO_ANGLE);
+        adc_capture();
+        check_stop_line();
+        if (task_number == 2 || task_number == 3) {
+            drive_state = STATE_STOP;
+        }
+        break;
+
+    case STATE_STOP:
+        target_speed_left  = 0.0f;
+        target_speed_right = 0.0f;
+        break;
+    }
+
+    // 速度环 + 电机输出（全程运行）
+    pid_loop_speed_update();
+    Motor_Control();
 }
 
 /*
