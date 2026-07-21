@@ -62,14 +62,15 @@ static uint32_t s_last_100ms = 0;       // 上次100ms行为触发时间
 
 static void wait_start_key(void)
 {
-    while (gpio_get_level(A31) == KEY_RELEASE_LEVEL)
+    while ((start_flag == 0) && (gpio_get_level(A31) == KEY_RELEASE_LEVEL))
     {
         Motor_SetLeft(0);
         Motor_SetRight(0);
         Buzzer_Poll();
-        test_vofa_poll();
+        test_vofa_poll();           // 轮询串口，接收 START=1 命令
         system_delay_ms(10);
     }
+    start_flag = 1;                 // 统一置 1（按键或 VOFA 触发）
 
     while (gpio_get_level(A31) != KEY_RELEASE_LEVEL)
     {
@@ -134,8 +135,8 @@ int main (void)
     interrupt_set_priority(GPIOA_INT_IRQn, 0);      // 编码器/按键 GPIO EXTI
     interrupt_set_priority(TIMG12_INT_IRQn, 1);     // 5ms 控制中断
     interrupt_set_priority(TIMG6_INT_IRQn, 2);      // 按键扫描定时器
-    wait_start_key();                               // 等待 A31 发车键
-    start_flag = 1;                                 
+    wait_start_key();                               // 等待 A31 按键 或 VOFA START=1 发车
+    // start_flag 已在 wait_start_key() 内置 1
     printsf(0, "start!");
 
     battery_voltage = adc_mean_filter_convert(ADC0_CH7_A22, 10)*0.0089388f;
@@ -165,7 +166,7 @@ int main (void)
                 r = enc_right_acc;
                 enc_left_acc = 0;
                 enc_right_acc = 0;
-                printf("Pitch:%.2f\r\n", Roll_a);
+                //printf("Pitch:%.2f\r\n", Roll_a);
                 // printf("Data:%.1f,%.1f,%.1f,%d,%d\r\n",
                 // l / 20.0f, r / 20.0f, (double)target_speed_left,
                 // gpio_get_level(B25), gpio_get_level(B24));
