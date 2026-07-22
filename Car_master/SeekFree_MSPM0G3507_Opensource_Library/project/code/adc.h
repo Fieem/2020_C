@@ -52,17 +52,19 @@ extern int line_lost;
 
 // 状态机
 typedef enum {
-    STATE_DRIVE      = 0,     // 直行：舵机 0°，不读灰度，等距离
-    STATE_TURN       = 1,     // 转弯：舵机固定角 + 差速，读灰度等停车
-    STATE_AFTER_TURN = 2,     // 转弯后：舵机 0°，取消差速，读灰度等停车
+    STATE_DRIVE      = 0,     // 正常循迹：灰度PID控制舵机和差速
+    STATE_TURN       = 1,     // 丢线转弯：舵机固定角、左右轮固定速度
+    STATE_AFTER_TURN = 2,     // 转弯后：恢复灰度PID循迹
     STATE_STOP       = 3,     // 停止：目标速度 0
 } drive_state_t;
 
 // 状态机阈值
 #define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
+#define TURN_SPEED_LEFT         20.0f       // STATE_TURN左轮固定目标速度
+#define TURN_SPEED_RIGHT         0.0f       // STATE_TURN右轮固定目标速度
 #define STEER_POLARITY          (-1.0f)     // 转向极性：当前实车方向反向，统一翻转舵角和差速
-#define LINE_ERROR_PRINT_PERIOD_MS  100U    // 灰度误差输出周期
+#define TARGET_SPEED_PRINT_PERIOD_MS  100U  // 两轮目标速度输出周期
 
 // 阿克曼几何参数：请按车上轮胎中心线实测值修改，单位 mm
 #define WHEEL_BASE_MM          120.0f       // 轴距：前后轮轴中心距离
