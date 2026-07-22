@@ -571,18 +571,6 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         break;
     }
 
-    // 停车状态不再让速度PID根据残余误差产生反向制动输出
-    if (drive_state == STATE_STOP)
-    {
-        target_speed_left  = 0.0f;
-        target_speed_right = 0.0f;
-        target_pwm_left    = 0.0f;
-        target_pwm_right   = 0.0f;
-        pid_pos_reset(&pid_speed_left);
-        pid_pos_reset(&pid_speed_right);
-        Motor_Control();
-        return;
-    }
 
     // 速度环 + 电机输出
     pid_loop_speed_update();

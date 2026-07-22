@@ -59,7 +59,7 @@ typedef enum {
 } drive_state_t;
 
 // 状态机阈值
-#define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
+#define TURN_YAW_THRESHOLD      85.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        13.0f       // 转弯时舵机固定角度
 #define TURN_SPEED_LEFT         25.0f       // STATE_TURN左轮固定目标速度
 #define TURN_SPEED_RIGHT         10.0f       // STATE_TURN右轮固定目标速度
