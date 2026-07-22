@@ -442,12 +442,36 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         // 舵机直行，循迹 PID 差速修正
         {
             static float last_steer_drive = 0.0f;
+            static uint16_t all_white_count = 0;
             float steer;
+            uint8_t all_white = 1;
 
             servo_accum_angle = 0.0f;
             Servo_SetAngle(0.0f);
             adc_capture();
             calculate_line_error();
+
+            // 白底标定值接近0；8路全部满足才算“全白”，并要求持续1.5秒
+            for (int i = 0; i < 8; i++)
+            {
+                if (adc_calibrated_value[i] > ALL_WHITE_VALUE_THRESHOLD)
+                {
+                    all_white = 0;
+                    break;
+                }
+            }
+
+            if (all_white)
+            {
+                if (all_white_count < ALL_WHITE_HOLD_COUNT)
+                {
+                    all_white_count++;
+                }
+            }
+            else
+            {
+                all_white_count = 0;
+            }
 
             if (!line_lost) {
                 steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
@@ -460,7 +484,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             target_speed_left  = speed_set - steer;
             target_speed_right = speed_set + steer;
 
-            if (distance_accum >= DRIVE_DIST_THRESHOLD) {
+            if (all_white_count >= ALL_WHITE_HOLD_COUNT) {
                 turn_start_yaw = Yaw_TotalAngle;    // 记录转弯起始偏航角
                 drive_state = STATE_TURN;
             }

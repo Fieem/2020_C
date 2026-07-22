@@ -59,7 +59,8 @@ typedef enum {
 } drive_state_t;
 
 // 状态机阈值
-#define DRIVE_DIST_THRESHOLD    60000.0f    // 直行距离阈值（编码器脉冲）
+#define ALL_WHITE_VALUE_THRESHOLD  20       // 单路归一化灰度值不超过此值认为是白底
+#define ALL_WHITE_HOLD_COUNT       300      // 5ms控制周期下连续300次=1.5s
 #define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
 
