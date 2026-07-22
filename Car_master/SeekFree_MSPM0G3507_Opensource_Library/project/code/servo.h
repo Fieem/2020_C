@@ -26,7 +26,7 @@
 // 角度范围
 #define SERVO_ANGLE_MIN     (-13.0f)
 #define SERVO_ANGLE_MAX     (+13.0f)
-#define SERVO_ANGLE_DEADZONE (3.0f)        // 舵机角度死区，±1°内回到中位
+#define SERVO_ANGLE_DEADZONE (7.0f)        // 舵机角度死区，±1°内回到中位
 
 // 实车直行时实测的中位 PWM，后续只需调整这个值
 #define SERVO_CENTER_DUTY   (440U)

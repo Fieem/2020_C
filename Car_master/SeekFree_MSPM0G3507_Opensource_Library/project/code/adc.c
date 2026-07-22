@@ -517,7 +517,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     case STATE_TURN:
         // 舵机固定角度 + 左右轮固定速度，读灰度检测横线停车
         {
-            float turn_angle = STEER_POLARITY * TURN_SERVO_ANGLE;
+            float turn_angle = TURN_SERVO_ANGLE;
             Servo_SetAngle(turn_angle);
             target_speed_left  = TURN_SPEED_LEFT;
             target_speed_right = TURN_SPEED_RIGHT;
