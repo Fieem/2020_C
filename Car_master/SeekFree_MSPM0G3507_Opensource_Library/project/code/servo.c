@@ -44,6 +44,12 @@ void Servo_SetAngle(float angle)
 {
     uint32_t duty;
 
+    // 小角度变化直接回中，抑制舵机在中位附近抖动
+    if (fabsf(angle) < SERVO_ANGLE_DEADZONE)
+    {
+        angle = 0.0f;
+    }
+
     // 限幅
     if (angle < SERVO_ANGLE_MIN) {
         angle = SERVO_ANGLE_MIN;
