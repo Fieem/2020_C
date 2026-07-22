@@ -603,8 +603,8 @@ static void set_target_speed_by_steer_angle(float steer_angle)
 {
     float diff = ackermann_diff_from_angle(steer_angle);
 
-    target_speed_left  = speed_set - diff;
-    target_speed_right = speed_set + diff;
+    target_speed_left  = speed_set + diff;
+    target_speed_right = speed_set - diff;
 }
 
 /*
