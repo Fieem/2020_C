@@ -427,28 +427,53 @@ void adc_calibration_trigger_once(void)
 
 void tracking_control_loop()// 循迹控制主循环（状态机）
 {
-    // 目标速度（全程有效，除非状态机覆盖）
-    target_speed_left  = speed_set;
-    target_speed_right = speed_set;
+    // 未发车：速度强制置 0
+    if (!start_flag) {
+        target_speed_left  = 0.0f;
+        target_speed_right = 0.0f;
+    } else {
+        target_speed_left  = speed_set;
+        target_speed_right = speed_set;
+    }
 
     switch (drive_state) {
 
     case STATE_DRIVE:
-        // 舵机保持直行，不读灰度
+        // 舵机直行，不读灰度
         servo_accum_angle = 0.0f;
         Servo_SetAngle(0.0f);
         if (distance_accum >= DRIVE_DIST_THRESHOLD) {
+            turn_start_yaw = Yaw_TotalAngle;    // 记录转弯起始偏航角
             drive_state = STATE_TURN;
         }
         break;
 
     case STATE_TURN:
-        // 舵机固定角度，读灰度检测横线停车
+        // 舵机固定角度 + 差速，读灰度检测横线停车
+        target_speed_left  = speed_set + 15;
+        target_speed_right = speed_set - 15;
         Servo_SetAngle(TURN_SERVO_ANGLE);
         adc_capture();
         check_stop_line();
         if (task_number == 2 || task_number == 3) {
             drive_state = STATE_STOP;
+            printsf(0, "STOP!");
+            break;
+        }
+        if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD) {
+            drive_state = STATE_AFTER_TURN;
+        }
+        break;
+
+    case STATE_AFTER_TURN:
+        // 舵机回正，取消差速，读灰度检测横线停车
+        servo_accum_angle = 0.0f;
+        Servo_SetAngle(0.0f);
+        adc_capture();
+        check_stop_line();
+        if (task_number == 2 || task_number == 3) {
+            drive_state = STATE_STOP;
+            printsf(0, "STOP!");
         }
         break;
 

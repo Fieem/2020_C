@@ -38,5 +38,6 @@ extern float target_pwm_right;
 
 extern float total_pulses;       // 全程编码器脉冲总数，time_control() 计算用
 extern float servo_accum_angle;  // 舵机累加角度，增量式 PD 使用
+extern float turn_start_yaw;     // 进入转弯状态时的偏航角
 
 #endif /* PROJECT_GLOBALS_H */

@@ -123,9 +123,9 @@ void pid_loop_speed_update(void)
     // 不需要手动翻转符号，否则负 target 会导致双重取反
 
     float left_mag  = pid_pos_calculate(&pid_speed_left,  target_speed_left,  (float)enc_left/4,
-                                         -500.0f, 500.0f, -30.0f, 30.0f);
+                                         -500.0f, 500.0f, -90.0f, 90.0f);
     float right_mag = pid_pos_calculate(&pid_speed_right, target_speed_right, (float)enc_right,
-                                         -500.0f, 500.0f, -30.0f, 30.0f);                                     
+                                         -500.0f, 500.0f, -90.0f, 90.0f);                                     
     target_pwm_left  = left_mag;
     target_pwm_right = right_mag;
 }

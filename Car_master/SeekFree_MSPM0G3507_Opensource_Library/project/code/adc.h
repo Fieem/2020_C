@@ -47,19 +47,21 @@ extern float line_error_raw;
 extern float line_error_filtered;
 extern int line_lost;
 
-#define STOP_LINE_THRESHOLD 600   // 8 路灰度值之和超过此值判定为横线停车
-#define STOP_LINE_COUNT     10    // 连续检测帧数（5ms/帧，10帧=50ms）
+#define STOP_LINE_THRESHOLD 400   // 8 路灰度值之和超过此值判定为横线停车
+#define STOP_LINE_COUNT     5    // 连续检测帧数（5ms/帧，10帧=50ms）
 
 // 状态机
 typedef enum {
-    STATE_DRIVE = 0,        // 直行：舵机 0°，不读灰度，等距离
-    STATE_TURN  = 1,        // 转弯：舵机固定角，读灰度等停车
-    STATE_STOP  = 2,        // 停止：目标速度 0
+    STATE_DRIVE      = 0,     // 直行：舵机 0°，不读灰度，等距离
+    STATE_TURN       = 1,     // 转弯：舵机固定角 + 差速，读灰度等停车
+    STATE_AFTER_TURN = 2,     // 转弯后：舵机 0°，取消差速，读灰度等停车
+    STATE_STOP       = 3,     // 停止：目标速度 0
 } drive_state_t;
 
 // 状态机阈值
-#define DRIVE_DIST_THRESHOLD    24000.0f    // 直行距离阈值（编码器脉冲）
-#define TURN_SERVO_ANGLE        13.0f       // 转弯时舵机固定角度
+#define DRIVE_DIST_THRESHOLD    59000.0f    // 直行距离阈值（编码器脉冲）
+#define TURN_YAW_THRESHOLD      87.0f       // 转弯偏航角阈值（度），超过则回正
+#define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
 
 extern drive_state_t drive_state;
 

@@ -28,7 +28,7 @@
 
 // 舵盘安装偏置（正值=往右修正，负值=往左修正）
 // 当前舵盘中位偏右约30°，设为 -30 补偿
-#define SERVO_MID_OFFSET    (-55.0f)
+#define SERVO_MID_OFFSET    (-60.0f)
 
 // 舵机转向 PD 参数
 #define SERVO_KP            (2.0f)     // 比例增益：线偏差 → 舵角

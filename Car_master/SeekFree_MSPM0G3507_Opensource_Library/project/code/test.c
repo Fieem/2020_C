@@ -49,6 +49,7 @@
 #include <string.h>
 
 #include "adc.h"
+#include "servo.h"
 #include "zf_driver_uart.h"
 #include "project_globals.h"
 #include "lqr.h"
@@ -134,6 +135,8 @@ static int test_vofa_apply_kv(const char *key, float value)
             task_number         = 0;
             distance_accum      = 0.0f;
             servo_accum_angle   = 0.0f;
+            turn_start_yaw      = 0.0f;
+            pwm_set_duty(SERVO_PWM_CHANNEL, SERVO_DUTY_MID);    // 直接复位到中位
             printsf(0, "[VOFA] RESTART");
         }
         return 1;
