@@ -21,14 +21,14 @@
 #define SERVO_DUTY_MIN      ( 250)   // 0.5ms 脉宽
 #define SERVO_DUTY_MID      ( 750)   // 1.5ms 脉宽（中位）
 #define SERVO_DUTY_MAX      (1250)   // 2.5ms 脉宽
+#define SERVO_DUTY_PER_DEG  (1000.0f / 180.0f)
 
 // 角度范围
 #define SERVO_ANGLE_MIN     (-13.0f)
 #define SERVO_ANGLE_MAX     (+13.0f)
 
-// 舵盘安装偏置（正值=往右修正，负值=往左修正）
-// 当前舵盘中位偏右约30°，设为 -30 补偿
-#define SERVO_MID_OFFSET    (-60.0f)
+// 实车直行时实测的中位 PWM，后续只需调整这个值
+#define SERVO_CENTER_DUTY   (400U)
 
 // 舵机转向 PD 参数
 #define SERVO_KP            (2.0f)     // 比例增益：线偏差 → 舵角

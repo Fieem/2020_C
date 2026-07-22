@@ -13,8 +13,8 @@
 //   1.5ms →   0°（中位）
 //   2.5ms → +90°
 //
-// 占空比计算（PWM_DUTY_MAX = 10000，50Hz，20ms 周期）：
-//   duty = 250 + (angle + 90) / 180 * 1000
+// 角度映射：以实测中位 PWM 为基准叠加角度增量。
+//   duty = SERVO_CENTER_DUTY + angle * SERVO_DUTY_PER_DEG
 //
 // 使用示例：
 //   Servo_Init();             // 初始化舵机
@@ -30,9 +30,8 @@
 //-------------------------------------------------------------------------------------------------------------------
 void Servo_Init(void)
 {
-    // 50Hz PWM，初始占空比为中位（含安装偏置补偿）
-    uint32_t mid_duty = (uint32_t)(250.0f + (SERVO_MID_OFFSET + 90.0f) / 180.0f * 1000.0f + 0.5f);
-    pwm_init(SERVO_PWM_CHANNEL, SERVO_FREQ_HZ, mid_duty);
+    // 50Hz PWM，初始输出实测中位
+    pwm_init(SERVO_PWM_CHANNEL, SERVO_FREQ_HZ, SERVO_CENTER_DUTY);
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -53,9 +52,17 @@ void Servo_SetAngle(float angle)
         angle = SERVO_ANGLE_MAX;
     }
 
-    // 叠加安装偏置，映射到 duty
-    float compensated = angle + SERVO_MID_OFFSET;
-    duty = (uint32_t)(250.0f + (compensated + 90.0f) / 180.0f * 1000.0f + 0.5f);
+    // 以实测中位 PWM 为基准，叠加目标角度增量
+    float duty_f = (float)SERVO_CENTER_DUTY + angle * SERVO_DUTY_PER_DEG;
+
+    if (duty_f < (float)SERVO_DUTY_MIN) {
+        duty_f = (float)SERVO_DUTY_MIN;
+    }
+    if (duty_f > (float)SERVO_DUTY_MAX) {
+        duty_f = (float)SERVO_DUTY_MAX;
+    }
+
+    duty = (uint32_t)(duty_f + 0.5f);
 
     pwm_set_duty(SERVO_PWM_CHANNEL, duty);
 }
