@@ -473,7 +473,10 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             float rad = fabsf(Roll_a) * 3.1415926f / 180.0f;
             float diff = TURN_DIFF_MIN + (TURN_DIFF_BASE - TURN_DIFF_MIN) * cosf(rad);
             target_speed_left  = speed_set + diff;
-            target_speed_right = speed_set - diff;
+            target_speed_right =0.0f;
+            // target_speed_right = speed_set - diff;
+            // if (target_speed_left  < 5.0f) target_speed_left  = 5.0f;
+            // if (target_speed_right < 5.0f) target_speed_right = 5.0f;
         }
         Servo_SetAngle(TURN_SERVO_ANGLE);
         adc_capture();
@@ -483,7 +486,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             printsf(0, "STOP!");
             break;
         }
-        if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD) {
+        if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD) {
             drive_state = STATE_AFTER_TURN;
         }
         break;

@@ -59,8 +59,8 @@ typedef enum {
 } drive_state_t;
 
 // 状态机阈值
-#define DRIVE_DIST_THRESHOLD    55000.0f    // 直行距离阈值（编码器脉冲）
-#define TURN_YAW_THRESHOLD      87.0f       // 转弯偏航角阈值（度），超过则回正
+#define DRIVE_DIST_THRESHOLD    60000.0f    // 直行距离阈值（编码器脉冲）
+#define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
 
 // 转弯差速随坡度自适应：diff = MIN + (BASE - MIN) × cos(θ)
