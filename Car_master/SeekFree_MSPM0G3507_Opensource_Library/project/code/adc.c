@@ -19,8 +19,6 @@ int adc_background_value[8] = {0}; // 背景校准值
 int adc_foreground_value[8] = {0}; // 前景校准值
 int adc_calibrated_value[8] = {0}; // 校准后的值
 float line_error_raw = 0.0f;
-static float line_error_bias = 0.0f;          // 线偏置估计值（慢速自学习）
-static uint8_t line_error_bias_ready = 0;     // 偏置是否已初始化
 
 // (cleaned: Yaw_Lock, Yaw_Lock_a, angle_flag, turning removed)
 
@@ -257,24 +255,8 @@ void calculate_line_error(void)
     // 缩放后的误差（原代码保持一致）
     float line_error_scaled = line_error_raw * 0.007f;
 
-    // 仅在“接近中线且信号充足”时，慢速学习静态偏置
-    // 作用：把传感器安装偏差/地面反射偏差吸收掉
-    if ((denominator > 120.0f) && (fabsf(line_error_scaled) < 1.0f))
-    {
-        if (!line_error_bias_ready)
-        {
-            line_error_bias = line_error_scaled; // 首次直接对齐
-            line_error_bias_ready = 1;
-        }
-        else
-        {
-            const float bias_alpha = 0.01f; // 越小越稳，越大越快
-            line_error_bias = (1.0f - bias_alpha) * line_error_bias + bias_alpha * line_error_scaled;
-        }
-    }
-
-    // 偏置补偿
-    float compensated = line_error_scaled - line_error_bias;
+    // 暂时不做自动偏置补偿，保留原始左右误差的对称性
+    float compensated = line_error_scaled;
 
     // 小死区：抑制中心附近抖动，防止“慢性漂移感”
     if (fabsf(compensated) < 0.015f)
