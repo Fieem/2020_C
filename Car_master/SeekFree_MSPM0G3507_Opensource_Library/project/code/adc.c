@@ -530,7 +530,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             break;
         }
         // 使用进入转弯时的角度作为基准，而不是使用上电后的绝对偏航角
-        if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD) {
+        if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD) {
             drive_state = STATE_AFTER_TURN;
         }
         break;
