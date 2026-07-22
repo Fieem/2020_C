@@ -59,10 +59,10 @@ typedef enum {
 } drive_state_t;
 
 // 状态机阈值
-#define ALL_WHITE_VALUE_THRESHOLD  20       // 单路归一化灰度值不超过此值认为是白底
-#define ALL_WHITE_HOLD_COUNT       300      // 5ms控制周期下连续300次=1.5s
 #define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
+#define STEER_POLARITY          (-1.0f)     // 转向极性：当前实车方向反向，统一翻转舵角和差速
+#define LINE_ERROR_PRINT_PERIOD_MS  100U    // 灰度误差输出周期
 
 // 阿克曼几何参数：请按车上轮胎中心线实测值修改，单位 mm
 #define WHEEL_BASE_MM          120.0f       // 轴距：前后轮轴中心距离

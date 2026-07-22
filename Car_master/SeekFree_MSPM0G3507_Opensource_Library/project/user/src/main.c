@@ -166,7 +166,7 @@ int main (void)
                 r = enc_right_acc;
                 enc_left_acc = 0;
                 enc_right_acc = 0;
-                printsf(0,"dis=%.2f",distance_accum);
+                // printsf(0,"dis=%.2f",distance_accum);
                 //printsf(0,"%.2f,%.2f",l/20.0f,r/20.0f);
                 //printf("Pitch:%.2f\r\n", Roll_a);
                 // printf("Data:%.1f,%.1f,%.1f,%d,%d\r\n",

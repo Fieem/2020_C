@@ -434,6 +434,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     static drive_state_t previous_state = STATE_STOP;
     static float last_steer_angle_drive = 0.0f;
     static float last_steer_angle_after = 0.0f;
+    static uint32_t last_line_error_print_ms = 0U;
 
     // 未发车时不进入状态机，避免状态分支把目标速度重新覆盖为 speed_set
     if (!start_flag) {
@@ -485,8 +486,16 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             adc_capture();
             calculate_line_error();
 
+            if ((g_timestamp_ms - last_line_error_print_ms) >= LINE_ERROR_PRINT_PERIOD_MS)
+            {
+                last_line_error_print_ms = g_timestamp_ms;
+                printsf(0, "gray_raw=%.2f filtered=%.2f lost=%d",
+                        line_error_raw, line_error_filtered, line_lost);
+            }
+
             if (!line_lost) {
-                steer_angle = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                steer_angle = STEER_POLARITY *
+                              pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
                                                 -100.0f, 100.0f,
                                                 SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
                 last_steer_angle_drive = steer_angle;
@@ -498,7 +507,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             set_target_speed_by_steer_angle(steer_angle);
 
             // 偏航角达到阈值后，直接进入转弯后的正常循迹状态
-            if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD)
+            if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD)
             {
                 drive_state = STATE_AFTER_TURN;
             }
@@ -508,8 +517,9 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     case STATE_TURN:
         // 舵机固定角度 + 阿克曼差速，读灰度检测横线停车
         {
-            Servo_SetAngle(TURN_SERVO_ANGLE);
-            set_target_speed_by_steer_angle(TURN_SERVO_ANGLE);
+            float turn_angle = STEER_POLARITY * TURN_SERVO_ANGLE;
+            Servo_SetAngle(turn_angle);
+            set_target_speed_by_steer_angle(turn_angle);
         }
         adc_capture();
         check_stop_line();
@@ -533,8 +543,16 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             adc_capture();
             calculate_line_error();
 
+            if ((g_timestamp_ms - last_line_error_print_ms) >= LINE_ERROR_PRINT_PERIOD_MS)
+            {
+                last_line_error_print_ms = g_timestamp_ms;
+                printsf(0, "gray_raw=%.2f filtered=%.2f lost=%d",
+                        line_error_raw, line_error_filtered, line_lost);
+            }
+
             if (!line_lost) {
-                steer_angle = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                steer_angle = STEER_POLARITY *
+                              pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
                                                 -100.0f, 100.0f,
                                                 SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
                 last_steer_angle_after = steer_angle;
