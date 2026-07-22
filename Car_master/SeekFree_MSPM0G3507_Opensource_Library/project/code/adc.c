@@ -234,9 +234,9 @@ void calculate_line_error(void)
     he_R = adc_calibrated_value[4] + adc_calibrated_value[5] + adc_calibrated_value[6] + adc_calibrated_value[7];
 
     // 左侧加权和：位置权重递减
-    cha_L = (adc_calibrated_value[0] * 3) + (adc_calibrated_value[1] * 1) + (adc_calibrated_value[2]*0.5 ) + adc_calibrated_value[3]*0;
+    cha_L = (adc_calibrated_value[0] * 5) + (adc_calibrated_value[1] * 4) + (adc_calibrated_value[2]*3 ) + adc_calibrated_value[3]*1;
     // 右侧加权和：位置权重递减
-    cha_R = (adc_calibrated_value[7] * 3) + (adc_calibrated_value[6] * 1) + (adc_calibrated_value[5]*0.5 ) + adc_calibrated_value[4]*0;
+    cha_R = (adc_calibrated_value[7] * 5) + (adc_calibrated_value[6] * 4) + (adc_calibrated_value[5]*3 ) + adc_calibrated_value[4]*1;
     // 计算差比和
     float denominator = he_L + he_R;
 
@@ -439,19 +439,42 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     switch (drive_state) {
 
     case STATE_DRIVE:
-        // 舵机直行，不读灰度
-        servo_accum_angle = 0.0f;
-        Servo_SetAngle(0.0f);
-        if (distance_accum >= DRIVE_DIST_THRESHOLD) {
-            turn_start_yaw = Yaw_TotalAngle;    // 记录转弯起始偏航角
-            drive_state = STATE_TURN;
+        // 舵机直行，循迹 PID 差速修正
+        {
+            static float last_steer_drive = 0.0f;
+            float steer;
+
+            servo_accum_angle = 0.0f;
+            Servo_SetAngle(0.0f);
+            adc_capture();
+            calculate_line_error();
+
+            if (!line_lost) {
+                steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                                          -100.0f, 100.0f, -15.0f, 15.0f);
+                last_steer_drive = steer;
+            } else {
+                steer = last_steer_drive;   // 丢线保持上一帧差速
+            }
+
+            target_speed_left  = speed_set - steer;
+            target_speed_right = speed_set + steer;
+
+            if (distance_accum >= DRIVE_DIST_THRESHOLD) {
+                turn_start_yaw = Yaw_TotalAngle;    // 记录转弯起始偏航角
+                drive_state = STATE_TURN;
+            }
         }
         break;
 
     case STATE_TURN:
-        // 舵机固定角度 + 差速，读灰度检测横线停车
-        target_speed_left  = speed_set + 15;
-        target_speed_right = speed_set - 15;
+        // 舵机固定角度 + 坡度自适应差速（cos 映射），读灰度检测横线停车
+        {
+            float rad = fabsf(Roll_a) * 3.1415926f / 180.0f;
+            float diff = TURN_DIFF_MIN + (TURN_DIFF_BASE - TURN_DIFF_MIN) * cosf(rad);
+            target_speed_left  = speed_set + diff;
+            target_speed_right = speed_set - diff;
+        }
         Servo_SetAngle(TURN_SERVO_ANGLE);
         adc_capture();
         check_stop_line();
@@ -466,14 +489,32 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         break;
 
     case STATE_AFTER_TURN:
-        // 舵机回正，取消差速，读灰度检测横线停车
-        servo_accum_angle = 0.0f;
-        Servo_SetAngle(0.0f);
-        adc_capture();
-        check_stop_line();
-        if (task_number == 2 || task_number == 3) {
-            drive_state = STATE_STOP;
-            printsf(0, "STOP!");
+        // 舵机回正，循迹 PID 差速修正
+        {
+            static float last_steer = 0.0f;
+            float steer;
+
+            servo_accum_angle = 0.0f;
+            Servo_SetAngle(0.0f);
+            adc_capture();
+            calculate_line_error();
+
+            if (!line_lost) {
+                steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                                          -100.0f, 100.0f, -15.0f, 15.0f);
+                last_steer = steer;
+            } else {
+                steer = last_steer;     // 丢线保持上一帧差速
+            }
+
+            target_speed_left  = speed_set - steer;
+            target_speed_right = speed_set + steer;
+
+            check_stop_line();
+            if (task_number == 2 || task_number == 3) {
+                drive_state = STATE_STOP;
+                printsf(0, "STOP!");
+            }
         }
         break;
 
