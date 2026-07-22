@@ -556,23 +556,21 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
 // 横线停车检测：连续多帧灰度之和超阈值才触发，避免误判
 void check_stop_line(void)
 {
-    static uint8_t stop_count = 0;
-
     int sum = 0;
     for (int i = 0; i < 8; i++) {
         sum += adc_calibrated_value[i];
     }
 
     if (sum > STOP_LINE_THRESHOLD) {
-        if (stop_count < STOP_LINE_COUNT) {
-            stop_count++;
-            if (stop_count >= STOP_LINE_COUNT && task_number != 2) {
+        if (stop_line_count < STOP_LINE_COUNT) {
+            stop_line_count++;
+            if (stop_line_count >= STOP_LINE_COUNT && task_number != 2) {
                 task_number = 2;
-                Buzzer_BeepMs(500);     // 停车时蜂鸣 200ms
+                Buzzer_BeepMs(200);     // 停车时蜂鸣 200ms
             }
         }
     } else {
-        stop_count = 0;     // 一帧不满足就清零
+        stop_line_count = 0;     // 一帧不满足就清零
     }
 }
 

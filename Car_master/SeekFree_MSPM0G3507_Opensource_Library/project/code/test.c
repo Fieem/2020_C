@@ -53,6 +53,7 @@
 #include "zf_driver_uart.h"
 #include "project_globals.h"
 #include "lqr.h"
+#include "zf_common_interrupt.h"
 #include "zf_common_fifo.h"
 static void prints_u(uint8_t index, unsigned int val);
 
@@ -130,13 +131,18 @@ static int test_vofa_apply_kv(const char *key, float value)
     {
         if (value > 0.5f)
         {
+        {
+            uint32 primask = interrupt_global_disable();
             start_flag          = 0;
             drive_state         = STATE_DRIVE;
             task_number         = 0;
             distance_accum      = 0.0f;
             servo_accum_angle   = 0.0f;
             turn_start_yaw      = 0.0f;
-            pwm_set_duty(SERVO_PWM_CHANNEL, SERVO_DUTY_MID);    // 直接复位到中位
+            stop_line_count     = 0;
+            interrupt_global_enable(primask);
+        }
+        pwm_set_duty(SERVO_PWM_CHANNEL, SERVO_DUTY_MID);    // 直接复位到中位
             printsf(0, "[VOFA] RESTART");
         }
         return 1;

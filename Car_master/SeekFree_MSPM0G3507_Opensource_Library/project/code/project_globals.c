@@ -40,3 +40,4 @@ float total_pulses = 68559.0f;      // 全程编码器脉冲总数，time_contro
 float servo_accum_angle = 0.0f;     // 舵机累加角度，增量式 PD 使用
 float turn_start_yaw = 0.0f;        // 进入转弯状态时的偏航角
 drive_state_t drive_state = STATE_DRIVE;  // 状态机初始状态
+uint8_t stop_line_count = 0;            // 横线停车连续检测计数
