@@ -140,7 +140,7 @@ int main (void)
     printsf(0, "start!");
 
     battery_voltage = adc_mean_filter_convert(ADC0_CH7_A22, 10)*0.0089388f;
-    if(battery_voltage < 9.0f)
+    if(battery_voltage < 11.0f)
     {
         printsf(0, "battery_voltage: %.2f", battery_voltage);
         while(1);
@@ -155,6 +155,11 @@ int main (void)
         if ((now - s_last_100ms) >= 100U)
         {
             s_last_100ms = now;
+    //         printsf(0,"%d,%d,%d,%d,%d,%d,%d,%d ",
+    //    adc_calibrated_value[0], adc_calibrated_value[1],
+    //    adc_calibrated_value[2], adc_calibrated_value[3],
+    //    adc_calibrated_value[4], adc_calibrated_value[5],
+    //    adc_calibrated_value[6], adc_calibrated_value[7]);
             //printf("Pitch:%.2f\r\n", Roll_a); 
             //printf("dis=%.2f\r\n",distance_accum);
             //printf("Data:  %.2f, %.2f, %.2f, %.2f, %.2f\r\n", target_yaw, gyro_yaw, target_gyro_z, target_speed_left, target_speed_right); 

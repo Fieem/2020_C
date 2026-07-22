@@ -48,7 +48,7 @@ extern float line_error_filtered;
 extern int line_lost;
 
 #define STOP_LINE_THRESHOLD 400   // 8 路灰度值之和超过此值判定为横线停车
-#define STOP_LINE_COUNT     5    // 连续检测帧数（5ms/帧，10帧=50ms）
+#define STOP_LINE_COUNT     2    // 连续检测帧数（5ms/帧，10帧=50ms）
 
 // 状态机
 typedef enum {
