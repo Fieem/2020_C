@@ -416,7 +416,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     static drive_state_t previous_state = STATE_STOP;
     static float last_steer_angle_drive = 0.0f;
     static float last_steer_angle_after = 0.0f;
-    static uint32_t last_line_error_print_ms = 0U;
+    static uint32_t last_target_speed_print_ms = 0U;
     static uint32_t line_lost_start_ms = 0U;
     static uint8_t line_lost_timing = 0U;
 
@@ -473,13 +473,6 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             servo_accum_angle = 0.0f;
             adc_capture();
             calculate_line_error();
-
-            if ((g_timestamp_ms - last_line_error_print_ms) >= LINE_ERROR_PRINT_PERIOD_MS)
-            {
-                last_line_error_print_ms = g_timestamp_ms;
-                printsf(0, "gray_raw=%.2f filtered=%.2f lost=%d",
-                        line_error_raw, line_error_filtered, line_lost);
-            }
 
             if (!line_lost) {
                 line_lost_timing = 0U;
@@ -551,13 +544,6 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             adc_capture();
             calculate_line_error();
 
-            if ((g_timestamp_ms - last_line_error_print_ms) >= LINE_ERROR_PRINT_PERIOD_MS)
-            {
-                last_line_error_print_ms = g_timestamp_ms;
-                printsf(0, "gray_raw=%.2f filtered=%.2f lost=%d",
-                        line_error_raw, line_error_filtered, line_lost);
-            }
-
             if (!line_lost) {
                 steer_angle = STEER_POLARITY *
                               pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
@@ -584,6 +570,13 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         target_speed_left  = 0.0f;
         target_speed_right = 0.0f;
         break;
+    }
+
+    if ((g_timestamp_ms - last_target_speed_print_ms) >= TARGET_SPEED_PRINT_PERIOD_MS)
+    {
+        last_target_speed_print_ms = g_timestamp_ms;
+        printsf(0, "target_left=%.2f target_right=%.2f state=%d",
+                target_speed_left, target_speed_right, drive_state);
     }
 
     // 停车状态不再让速度PID根据残余误差产生反向制动输出
@@ -628,6 +621,11 @@ static float ackermann_diff_from_angle(float steer_angle)
 static void set_target_speed_by_steer_angle(float steer_angle)
 {
     float diff = ackermann_diff_from_angle(steer_angle);
+
+    if (fabsf(diff) < SPEED_DIFF_DEADZONE)
+    {
+        diff = 0.0f;
+    }
 
     target_speed_left  = speed_set + diff;
     target_speed_right = speed_set - diff;
