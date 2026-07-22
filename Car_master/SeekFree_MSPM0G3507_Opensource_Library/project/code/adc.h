@@ -65,7 +65,6 @@ typedef enum {
 #define TURN_SPEED_RIGHT         15.0f       // STATE_TURN右轮固定目标速度
 #define LINE_LOST_TURN_HOLD_MS  500U        // 连续丢线100ms后进入STATE_TURN
 #define STEER_POLARITY          (-1.0f)     // 转向极性：当前实车方向反向，统一翻转舵角和差速
-#define TARGET_SPEED_PRINT_PERIOD_MS  100U  // 两轮目标速度输出周期
 #define SPEED_DIFF_DEADZONE           1.5f  // 阿克曼差速死区，单位：目标速度
 
 // 阿克曼几何参数：请按车上轮胎中心线实测值修改，单位 mm

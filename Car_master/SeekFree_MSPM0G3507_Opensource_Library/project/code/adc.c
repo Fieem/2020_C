@@ -416,7 +416,6 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     static drive_state_t previous_state = STATE_STOP;
     static float last_steer_angle_drive = 0.0f;
     static float last_steer_angle_after = 0.0f;
-    static uint32_t last_target_speed_print_ms = 0U;
     static uint32_t line_lost_start_ms = 0U;
     static uint8_t line_lost_timing = 0U;
 
@@ -572,13 +571,6 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         break;
     }
 
-    if ((g_timestamp_ms - last_target_speed_print_ms) >= TARGET_SPEED_PRINT_PERIOD_MS)
-    {
-        last_target_speed_print_ms = g_timestamp_ms;
-        printsf(0, "target_left=%.2f target_right=%.2f state=%d",
-                target_speed_left, target_speed_right, drive_state);
-    }
-
     // 停车状态不再让速度PID根据残余误差产生反向制动输出
     if (drive_state == STATE_STOP)
     {
@@ -627,8 +619,8 @@ static void set_target_speed_by_steer_angle(float steer_angle)
         diff = 0.0f;
     }
 
-    target_speed_left  = speed_set + diff;
-    target_speed_right = speed_set - diff;
+    target_speed_left  = speed_set + diff * 5;
+    target_speed_right = speed_set - diff * 5;
 }
 
 /*
