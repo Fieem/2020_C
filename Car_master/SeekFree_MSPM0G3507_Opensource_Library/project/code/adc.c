@@ -25,6 +25,7 @@ static uint8_t line_error_bias_ready = 0;     // 偏置是否已初始化
 // (cleaned: Yaw_Lock, Yaw_Lock_a, angle_flag, turning removed)
 
 int line_lost = 0;
+static uint8_t stop_line_count = 0;
 
 static float clampf_local(float x, float min_v, float max_v)
 {
@@ -425,84 +426,91 @@ void adc_calibration_trigger_once(void)
 
 // lap_control_update_5ms() removed — circle counting not needed for slope task
 
+static float ackermann_diff_from_angle(float steer_angle);
+static void set_target_speed_by_steer_angle(float steer_angle);
+
 void tracking_control_loop()// 循迹控制主循环（状态机）
 {
-    // 未发车：速度强制置 0
+    static drive_state_t previous_state = STATE_STOP;
+    static float last_steer_angle_drive = 0.0f;
+    static float last_steer_angle_after = 0.0f;
+
+    // 未发车时不进入状态机，避免状态分支把目标速度重新覆盖为 speed_set
     if (!start_flag) {
+        previous_state = STATE_STOP;
+        last_steer_angle_drive = 0.0f;
+        last_steer_angle_after = 0.0f;
+        stop_line_count = 0;
+        pid_pos_reset(&pid_angle);
         target_speed_left  = 0.0f;
         target_speed_right = 0.0f;
-    } else {
-        target_speed_left  = speed_set;
-        target_speed_right = speed_set;
+        target_pwm_left    = 0.0f;
+        target_pwm_right   = 0.0f;
+        Servo_SetAngle(0.0f);
+        pid_pos_reset(&pid_speed_left);
+        pid_pos_reset(&pid_speed_right);
+        Motor_Control();
+        return;
     }
+
+    // 状态切换时清理上一个状态的滤波/保持量，防止重新发车或回正后立即跳转
+    if (drive_state != previous_state)
+    {
+        if (drive_state == STATE_DRIVE)
+        {
+            last_steer_angle_drive = 0.0f;
+            // 以发车时的偏航角作为本段循迹的参考角
+            turn_start_yaw = Yaw_TotalAngle;
+            pid_pos_reset(&pid_angle);
+        }
+        else if (drive_state == STATE_AFTER_TURN)
+        {
+            last_steer_angle_after = 0.0f;
+            pid_pos_reset(&pid_angle);
+        }
+        previous_state = drive_state;
+    }
+
+    target_speed_left  = speed_set;
+    target_speed_right = speed_set;
 
     switch (drive_state) {
 
     case STATE_DRIVE:
-        // 舵机直行，循迹 PID 差速修正
+        // 灰度误差 PID -> 舵机角度 -> 阿克曼差速
         {
-            static float last_steer_drive = 0.0f;
-            static uint16_t all_white_count = 0;
-            float steer;
-            uint8_t all_white = 1;
+            float steer_angle;
 
             servo_accum_angle = 0.0f;
-            Servo_SetAngle(0.0f);
             adc_capture();
             calculate_line_error();
 
-            // 白底标定值接近0；8路全部满足才算“全白”，并要求持续1.5秒
-            for (int i = 0; i < 8; i++)
-            {
-                if (adc_calibrated_value[i] > ALL_WHITE_VALUE_THRESHOLD)
-                {
-                    all_white = 0;
-                    break;
-                }
-            }
-
-            if (all_white)
-            {
-                if (all_white_count < ALL_WHITE_HOLD_COUNT)
-                {
-                    all_white_count++;
-                }
-            }
-            else
-            {
-                all_white_count = 0;
-            }
-
             if (!line_lost) {
-                steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
-                                          -100.0f, 100.0f, -15.0f, 15.0f);
-                last_steer_drive = steer;
+                steer_angle = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                                                -100.0f, 100.0f,
+                                                SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
+                last_steer_angle_drive = steer_angle;
             } else {
-                steer = last_steer_drive;   // 丢线保持上一帧差速
+                steer_angle = last_steer_angle_drive;   // 丢线保持上一帧舵角
             }
 
-            target_speed_left  = speed_set - steer;
-            target_speed_right = speed_set + steer;
+            Servo_SetAngle(steer_angle);
+            set_target_speed_by_steer_angle(steer_angle);
 
-            if (all_white_count >= ALL_WHITE_HOLD_COUNT) {
-                turn_start_yaw = Yaw_TotalAngle;    // 记录转弯起始偏航角
-                drive_state = STATE_TURN;
+            // 偏航角达到阈值后，直接进入转弯后的正常循迹状态
+            if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD)
+            {
+                drive_state = STATE_AFTER_TURN;
             }
         }
         break;
 
     case STATE_TURN:
-        // 舵机固定角度 + 坡度自适应差速（cos 映射），读灰度检测横线停车
+        // 舵机固定角度 + 阿克曼差速，读灰度检测横线停车
         {
-            float rad = fabsf(Roll_a) * 3.1415926f / 180.0f;
-            float diff = TURN_DIFF_MIN + (TURN_DIFF_BASE - TURN_DIFF_MIN) * cosf(rad);
-            target_speed_left  = speed_set + diff;
-            target_speed_right =0.0f;
-            // target_speed_right = speed_set - diff;
-            // if (target_speed_left  < 5.0f) target_speed_left  = 5.0f;
-            // if (target_speed_right < 5.0f) target_speed_right = 5.0f;
+            Servo_SetAngle(TURN_SERVO_ANGLE);
+            set_target_speed_by_steer_angle(TURN_SERVO_ANGLE);
         }
-        Servo_SetAngle(TURN_SERVO_ANGLE);
         adc_capture();
         check_stop_line();
         if (task_number == 2 || task_number == 3) {
@@ -510,32 +518,32 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             printsf(0, "STOP!");
             break;
         }
-        if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD) {
+        // 使用进入转弯时的角度作为基准，而不是使用上电后的绝对偏航角
+        if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD) {
             drive_state = STATE_AFTER_TURN;
         }
         break;
 
     case STATE_AFTER_TURN:
-        // 舵机回正，循迹 PID 差速修正
+        // 灰度误差 PID -> 舵机角度 -> 阿克曼差速
         {
-            static float last_steer = 0.0f;
-            float steer;
+            float steer_angle;
 
             servo_accum_angle = 0.0f;
-            Servo_SetAngle(0.0f);
             adc_capture();
             calculate_line_error();
 
             if (!line_lost) {
-                steer = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
-                                          -100.0f, 100.0f, -15.0f, 15.0f);
-                last_steer = steer;
+                steer_angle = pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
+                                                -100.0f, 100.0f,
+                                                SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
+                last_steer_angle_after = steer_angle;
             } else {
-                steer = last_steer;     // 丢线保持上一帧差速
+                steer_angle = last_steer_angle_after;     // 丢线保持上一帧舵角
             }
 
-            target_speed_left  = speed_set - steer;
-            target_speed_right = speed_set + steer;
+            Servo_SetAngle(steer_angle);
+            set_target_speed_by_steer_angle(steer_angle);
 
             check_stop_line();
             if (task_number == 2 || task_number == 3) {
@@ -546,14 +554,57 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         break;
 
     case STATE_STOP:
+        Servo_SetAngle(0.0f);
         target_speed_left  = 0.0f;
         target_speed_right = 0.0f;
         break;
     }
 
-    // 速度环 + 电机输出（全程运行）
+    // 停车状态不再让速度PID根据残余误差产生反向制动输出
+    if (drive_state == STATE_STOP)
+    {
+        target_speed_left  = 0.0f;
+        target_speed_right = 0.0f;
+        target_pwm_left    = 0.0f;
+        target_pwm_right   = 0.0f;
+        pid_pos_reset(&pid_speed_left);
+        pid_pos_reset(&pid_speed_right);
+        Motor_Control();
+        return;
+    }
+
+    // 速度环 + 电机输出
     pid_loop_speed_update();
     Motor_Control();
+}
+
+// 根据舵机实际转向角计算阿克曼差速。
+// 约定：正舵角对应左转，此时左轮为内侧轮、速度较低。
+static float ackermann_diff_from_angle(float steer_angle)
+{
+    const float pi = 3.1415926f;
+    float ratio;
+
+    // 舵机机械限位为±13°，差速计算也使用限幅后的角度
+    if (steer_angle < SERVO_ANGLE_MIN) steer_angle = SERVO_ANGLE_MIN;
+    if (steer_angle > SERVO_ANGLE_MAX) steer_angle = SERVO_ANGLE_MAX;
+
+    ratio = (WHEEL_TRACK_MM * tanf(steer_angle * pi / 180.0f))
+          / (2.0f * WHEEL_BASE_MM);
+
+    // 防止极端舵角或参数错误导致内侧轮反转
+    if (ratio > ACKERMANN_MAX_RATIO) ratio = ACKERMANN_MAX_RATIO;
+    if (ratio < -ACKERMANN_MAX_RATIO) ratio = -ACKERMANN_MAX_RATIO;
+
+    return speed_set * ratio;
+}
+
+static void set_target_speed_by_steer_angle(float steer_angle)
+{
+    float diff = ackermann_diff_from_angle(steer_angle);
+
+    target_speed_left  = speed_set - diff;
+    target_speed_right = speed_set + diff;
 }
 
 /*
@@ -580,23 +631,21 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
 // 横线停车检测：连续多帧灰度之和超阈值才触发，避免误判
 void check_stop_line(void)
 {
-    static uint8_t stop_count = 0;
-
     int sum = 0;
     for (int i = 0; i < 8; i++) {
         sum += adc_calibrated_value[i];
     }
 
     if (sum > STOP_LINE_THRESHOLD) {
-        if (stop_count < STOP_LINE_COUNT) {
-            stop_count++;
-            if (stop_count >= STOP_LINE_COUNT && task_number != 2) {
+        if (stop_line_count < STOP_LINE_COUNT) {
+            stop_line_count++;
+            if (stop_line_count >= STOP_LINE_COUNT && task_number != 2) {
                 task_number = 2;
                 Buzzer_BeepMs(500);     // 停车时蜂鸣 200ms
             }
         }
     } else {
-        stop_count = 0;     // 一帧不满足就清零
+        stop_line_count = 0;     // 一帧不满足就清零
     }
 }
 

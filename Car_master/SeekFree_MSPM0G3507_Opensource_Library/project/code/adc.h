@@ -64,9 +64,10 @@ typedef enum {
 #define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        12.0f       // 转弯时舵机固定角度
 
-// 转弯差速随坡度自适应：diff = MIN + (BASE - MIN) × cos(θ)
-#define TURN_DIFF_BASE          15.0f       // 平地差速（最大）
-#define TURN_DIFF_MIN            5.0f       // 陡坡差速下限
+// 阿克曼几何参数：请按车上轮胎中心线实测值修改，单位 mm
+#define WHEEL_BASE_MM          120.0f       // 轴距：前后轮轴中心距离
+#define WHEEL_TRACK_MM         145.0f       // 轮距：同轴左右轮中心距离
+#define ACKERMANN_MAX_RATIO      0.80f       // 内侧轮最低保留20%，避免差速过激
 
 extern drive_state_t drive_state;
 
