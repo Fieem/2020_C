@@ -62,10 +62,10 @@ typedef enum {
 #define TURN_YAW_THRESHOLD      80.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        13.0f       // 转弯时舵机固定角度
 #define TURN_SPEED_LEFT         25.0f       // STATE_TURN左轮固定目标速度
-#define TURN_SPEED_RIGHT         15.0f       // STATE_TURN右轮固定目标速度
+#define TURN_SPEED_RIGHT         10.0f       // STATE_TURN右轮固定目标速度
 #define LINE_LOST_TURN_HOLD_MS  500U        // 连续丢线100ms后进入STATE_TURN
 #define STEER_POLARITY          (-1.0f)     // 转向极性：当前实车方向反向，统一翻转舵角和差速
-#define SPEED_DIFF_DEADZONE           1.0f  // 阿克曼差速死区，单位：目标速度
+#define SPEED_DIFF_DEADZONE           0.8f  // 阿克曼差速死区，单位：目标速度
 
 // 阿克曼几何参数：请按车上轮胎中心线实测值修改，单位 mm
 #define WHEEL_BASE_MM          120.0f       // 轴距：前后轮轴中心距离
