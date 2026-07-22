@@ -233,9 +233,9 @@ void calculate_line_error(void)
     he_R = adc_calibrated_value[4] + adc_calibrated_value[5] + adc_calibrated_value[6] + adc_calibrated_value[7];
 
     // 左侧加权和：位置权重递减
-    cha_L = (adc_calibrated_value[0] * 5) + (adc_calibrated_value[1] * 4) + (adc_calibrated_value[2]*0 ) + adc_calibrated_value[3]*0;
+    cha_L = (adc_calibrated_value[0] * 5) + (adc_calibrated_value[1] * 4) + (adc_calibrated_value[2]*3 ) + adc_calibrated_value[3]*0;
     // 右侧加权和：位置权重递减
-    cha_R = (adc_calibrated_value[7] * 5) + (adc_calibrated_value[6] * 4) + (adc_calibrated_value[5]*0 ) + adc_calibrated_value[4]*0;
+    cha_R = (adc_calibrated_value[7] * 5) + (adc_calibrated_value[6] * 4) + (adc_calibrated_value[5]*3 ) + adc_calibrated_value[4]*0;
     // 计算差比和
     float denominator = he_L + he_R;
 
