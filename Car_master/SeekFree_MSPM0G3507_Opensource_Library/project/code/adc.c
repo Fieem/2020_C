@@ -417,12 +417,16 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     static float last_steer_angle_drive = 0.0f;
     static float last_steer_angle_after = 0.0f;
     static uint32_t last_target_speed_print_ms = 0U;
+    static uint32_t line_lost_start_ms = 0U;
+    static uint8_t line_lost_timing = 0U;
 
     // 未发车时不进入状态机，避免状态分支把目标速度重新覆盖为 speed_set
     if (!start_flag) {
         previous_state = STATE_STOP;
         last_steer_angle_drive = 0.0f;
         last_steer_angle_after = 0.0f;
+        line_lost_start_ms = 0U;
+        line_lost_timing = 0U;
         stop_line_count = 0;
         pid_pos_reset(&pid_angle);
         target_speed_left  = 0.0f;
@@ -442,6 +446,8 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         if (drive_state == STATE_DRIVE)
         {
             last_steer_angle_drive = 0.0f;
+            line_lost_start_ms = 0U;
+            line_lost_timing = 0U;
             // 以发车时的偏航角作为本段循迹的参考角
             turn_start_yaw = Yaw_TotalAngle;
             pid_pos_reset(&pid_angle);
@@ -469,6 +475,8 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             calculate_line_error();
 
             if (!line_lost) {
+                line_lost_timing = 0U;
+                line_lost_start_ms = 0U;
                 steer_angle = STEER_POLARITY *
                               pid_pos_calculate(&pid_angle, 0.0f, line_error_filtered,
                                                 -100.0f, 100.0f,
@@ -476,8 +484,18 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
                 last_steer_angle_drive = steer_angle;
             } else {
                 steer_angle = last_steer_angle_drive;   // 丢线保持上一帧舵角
-                turn_start_yaw = Yaw_TotalAngle;
-                drive_state = STATE_TURN;
+
+                if (!line_lost_timing)
+                {
+                    line_lost_start_ms = g_timestamp_ms;
+                    line_lost_timing = 1U;
+                }
+
+                if ((g_timestamp_ms - line_lost_start_ms) >= LINE_LOST_TURN_HOLD_MS)
+                {
+                    turn_start_yaw = Yaw_TotalAngle;
+                    drive_state = STATE_TURN;
+                }
             }
 
             if (drive_state == STATE_TURN)
@@ -512,7 +530,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             break;
         }
         // 使用进入转弯时的角度作为基准，而不是使用上电后的绝对偏航角
-        if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD) {
+        if (fabsf(Yaw_TotalAngle - turn_start_yaw) >= TURN_YAW_THRESHOLD) {
             drive_state = STATE_AFTER_TURN;
         }
         break;
