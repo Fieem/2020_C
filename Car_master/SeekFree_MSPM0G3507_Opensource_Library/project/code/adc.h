@@ -34,7 +34,7 @@ uint8 adc_calib_flash_load(void);
 
 void adc_capture(void);
 void adc_capture_init(void);
-void calculate_line_error(void);
+void calculate_line_error(void); 
 
 extern int adc_background_value[8];
 extern int adc_foreground_value[8];

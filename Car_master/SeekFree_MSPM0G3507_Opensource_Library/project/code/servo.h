@@ -28,7 +28,7 @@
 #define SERVO_ANGLE_MAX     (+13.0f)
 
 // 实车直行时实测的中位 PWM，后续只需调整这个值
-#define SERVO_CENTER_DUTY   (400U)
+#define SERVO_CENTER_DUTY   (440U)
 
 // 舵机转向 PD 参数
 #define SERVO_KP            (2.0f)     // 比例增益：线偏差 → 舵角
