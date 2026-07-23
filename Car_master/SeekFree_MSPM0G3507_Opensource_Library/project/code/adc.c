@@ -432,6 +432,25 @@ static float get_turn_servo_angle_by_slope(void)
     return turn_angle;
 }
 
+static float get_turn_left_speed_by_slope(void)
+{
+    float slope_angle = fabsf(Roll_a);
+    float left_speed = TURN_SPEED_LEFT;
+
+    if (slope_angle > TURN_SERVO_SLOPE_START)
+    {
+        left_speed -= (slope_angle - TURN_SERVO_SLOPE_START) *
+                      TURN_LEFT_SPEED_SLOPE_GAIN;
+    }
+
+    if (left_speed < TURN_LEFT_SPEED_FLOOR)
+    {
+        left_speed = TURN_LEFT_SPEED_FLOOR;
+    }
+
+    return left_speed;
+}
+
 void tracking_control_loop()// 循迹控制主循环（状态机）
 {
     static drive_state_t previous_state = STATE_STOP;
@@ -504,7 +523,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             {
                 float turn_angle = get_turn_servo_angle_by_slope();
                 Servo_SetAngle(turn_angle);
-                target_speed_left  = TURN_SPEED_LEFT;
+                target_speed_left  = get_turn_left_speed_by_slope();
                 target_speed_right = TURN_SPEED_RIGHT;
             }
             else
@@ -526,7 +545,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         {
             float turn_angle = get_turn_servo_angle_by_slope();
             Servo_SetAngle(turn_angle);
-            target_speed_left  = TURN_SPEED_LEFT;
+            target_speed_left  = get_turn_left_speed_by_slope();
             target_speed_right = TURN_SPEED_RIGHT;
         }
         adc_capture();
