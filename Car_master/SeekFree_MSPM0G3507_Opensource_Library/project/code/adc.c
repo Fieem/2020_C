@@ -583,7 +583,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             Servo_SetAngle(steer_angle);
             // 转弯完成后的恢复阶段，两轮都采用 STATE_TURN 左轮速度。
             target_speed_left  = TURN_SPEED_LEFT;
-            target_speed_right = TURN_SPEED_LEFT;
+            target_speed_right = TURN_SPEED_LEFT + 5;
 
             check_stop_line();
             if (task_number == 2 || task_number == 3) {

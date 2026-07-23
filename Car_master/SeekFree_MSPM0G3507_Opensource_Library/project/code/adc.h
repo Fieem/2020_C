@@ -79,8 +79,8 @@ void check_stop_line(void);
 
 #define TURN_ENTER_YAW_THRESHOLD 10.0f  // STATE_DRIVE进入STATE_TURN的累计偏航角阈值
 #define TURN_SERVO_ANGLE_FLOOR   7.0f   // 坡道转弯时舵机角度下限
-#define TURN_SERVO_SLOPE_START   20.0f   // 开始缩小舵角的坡度角
-#define TURN_SERVO_SLOPE_GAIN    0.40f  // 每增加1°坡度，舵角减少0.20°
+#define TURN_SERVO_SLOPE_START   10.0f   // 开始缩小舵角的坡度角
+#define TURN_SERVO_SLOPE_GAIN    0.20f  // 每增加1°坡度，舵角减少0.20°
 
 #define TURN_RIGHT_SPEED_CEILING     18.0f
 #define TURN_RIGHT_SPEED_SLOPE_GAIN  0.70f
