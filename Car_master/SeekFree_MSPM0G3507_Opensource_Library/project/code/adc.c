@@ -549,12 +549,12 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             target_speed_right = TURN_SPEED_RIGHT;
         }
         adc_capture();
-        check_stop_line();
-        if (task_number == 2 || task_number == 3) {
-            drive_state = STATE_STOP;
-            printsf(0, "STOP!");
-            break;
-        }
+        // check_stop_line();
+        // if (task_number == 2 || task_number == 3) {
+        //     drive_state = STATE_STOP;
+        //     printsf(0, "STOP!");
+        //     break;
+        // }
         // 使用进入转弯时的角度作为基准，而不是使用上电后的绝对偏航角
         if (fabsf(Yaw_TotalAngle) >= TURN_YAW_THRESHOLD) {
             drive_state = STATE_AFTER_TURN;
