@@ -36,7 +36,7 @@ int32_t enc_right_acc = 0;
 float target_pwm_left = 0.0f;
 float target_pwm_right = 0.0f;
 
-float total_pulses = 68559.0f;      // 全程编码器脉冲总数，time_control() 计算用
+float total_pulses = 41135.0f;      // 全程编码器脉冲总数，time_control() 计算用
 float servo_accum_angle = 0.0f;     // 舵机累加角度，增量式 PD 使用
 float turn_start_yaw = 0.0f;        // 进入转弯状态时的偏航角
 drive_state_t drive_state = STATE_DRIVE;  // 状态机初始状态

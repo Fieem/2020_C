@@ -12,7 +12,7 @@ static int prev_line_lost = 0;
 int16 time_control(float time)
 {
     if (time <= 0.01f) return 0;                    // 防除零
-    speed_set = total_pulses / (time * 200.0f); // 200 = 1s / 5ms
+    speed_set = total_pulses / ((time-6) * 200.0f); // 200 = 1s / 5ms
     return (int16)speed_set;
 }
 
