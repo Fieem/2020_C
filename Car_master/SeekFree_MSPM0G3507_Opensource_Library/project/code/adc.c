@@ -427,14 +427,12 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
         line_lost_start_ms = 0U;
         line_lost_timing = 0U;
         stop_line_count = 0;
-        pid_pos_reset(&pid_angle);
+        // pid_pos_reset(&pid_angle);
         target_speed_left  = 0.0f;
         target_speed_right = 0.0f;
-        target_pwm_left    = 0.0f;
-        target_pwm_right   = 0.0f;
         Servo_SetAngle(0.0f);
-        pid_pos_reset(&pid_speed_left);
-        pid_pos_reset(&pid_speed_right);
+        // pid_pos_reset(&pid_speed_left);
+        // pid_pos_reset(&pid_speed_right);
         Motor_Control();
         return;
     }
