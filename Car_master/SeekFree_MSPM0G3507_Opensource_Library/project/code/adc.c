@@ -411,6 +411,27 @@ void adc_calibration_trigger_once(void)
 static float ackermann_diff_from_angle(float steer_angle);
 static void set_target_speed_by_steer_angle(float steer_angle);
 
+// Roll_a 对应当前 IMU 安装方向上的车体纵向坡度角。
+// 坡度越大，固定转弯舵角越小，避免上坡转弯过度。
+static float get_turn_servo_angle_by_slope(void)
+{
+    float slope_angle = fabsf(Roll_a);
+    float turn_angle = TURN_SERVO_ANGLE;
+
+    if (slope_angle > TURN_SERVO_SLOPE_START)
+    {
+        turn_angle -= (slope_angle - TURN_SERVO_SLOPE_START) *
+                      TURN_SERVO_SLOPE_GAIN;
+    }
+
+    if (turn_angle < TURN_SERVO_ANGLE_FLOOR)
+    {
+        turn_angle = TURN_SERVO_ANGLE_FLOOR;
+    }
+
+    return turn_angle;
+}
+
 void tracking_control_loop()// 循迹控制主循环（状态机）
 {
     static drive_state_t previous_state = STATE_STOP;
@@ -481,7 +502,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
 
             if (drive_state == STATE_TURN)
             {
-                float turn_angle = TURN_SERVO_ANGLE;
+                float turn_angle = get_turn_servo_angle_by_slope();
                 Servo_SetAngle(turn_angle);
                 target_speed_left  = TURN_SPEED_LEFT;
                 target_speed_right = TURN_SPEED_RIGHT;
@@ -503,7 +524,7 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
     case STATE_TURN:
         // 舵机固定角度 + 左右轮固定速度，读灰度检测横线停车
         {
-            float turn_angle = TURN_SERVO_ANGLE;
+            float turn_angle = get_turn_servo_angle_by_slope();
             Servo_SetAngle(turn_angle);
             target_speed_left  = TURN_SPEED_LEFT;
             target_speed_right = TURN_SPEED_RIGHT;
