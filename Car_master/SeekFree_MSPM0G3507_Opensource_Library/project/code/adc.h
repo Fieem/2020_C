@@ -82,7 +82,7 @@ void check_stop_line(void);
 #define TURN_SERVO_SLOPE_START   20.0f   // 开始缩小舵角的坡度角
 #define TURN_SERVO_SLOPE_GAIN    0.40f  // 每增加1°坡度，舵角减少0.20°
 
-#define TURN_RIGHT_SPEED_CEILING     17.0f
-#define TURN_RIGHT_SPEED_SLOPE_GAIN  0.60f
+#define TURN_RIGHT_SPEED_CEILING     18.0f
+#define TURN_RIGHT_SPEED_SLOPE_GAIN  0.70f
 
 #endif // !ADC_H
