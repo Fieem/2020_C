@@ -61,7 +61,7 @@ typedef enum {
 // 状态机阈值
 #define TURN_YAW_THRESHOLD      85.0f       // 转弯偏航角阈值（度），超过则回正
 #define TURN_SERVO_ANGLE        13.0f       // 转弯时舵机固定角度
-#define TURN_SPEED_LEFT         22.0f       // STATE_TURN左轮固定目标速度
+#define TURN_SPEED_LEFT         25.0f       // STATE_TURN左轮固定目标速度
 #define TURN_SPEED_RIGHT         7.0f       // STATE_TURN右轮固定目标速度
 #define LINE_LOST_TURN_HOLD_MS  500U        // 连续丢线100ms后进入STATE_TURN
 #define STEER_POLARITY          (-1.0f)     // 转向极性：当前实车方向反向，统一翻转舵角和差速
@@ -77,6 +77,6 @@ extern drive_state_t drive_state;
 void tracking_control_loop(void);
 void check_stop_line(void);
 
-#define TURN_ENTER_YAW_THRESHOLD 15.0f  // STATE_DRIVE进入STATE_TURN的累计偏航角阈值
+#define TURN_ENTER_YAW_THRESHOLD 10.0f  // STATE_DRIVE进入STATE_TURN的累计偏航角阈值
 
 #endif // !ADC_H
