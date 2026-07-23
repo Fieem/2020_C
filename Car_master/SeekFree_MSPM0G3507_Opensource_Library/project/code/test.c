@@ -96,7 +96,7 @@ static int test_vofa_apply_kv(const char *key, float value)
     if (test_key_equal(key, "P2")) { pid_speed_right.Kp = value;                                             printsf(0,"[VOFA] P1=%.4f\r\n", value);                return 1; }
     if (test_key_equal(key, "I2")) { pid_speed_right.Ki = value;                                             printsf(0,"[VOFA] I1=%.4f\r\n", value);                return 1; }
     if (test_key_equal(key, "D2")) { pid_speed_right.Kd = value;                                             printsf(0,"[VOFA] D1=%.4f\r\n", value);                return 1; }
-    if (test_key_equal(key, "TIME")) { speed_set=0.6f*time_control(value);                                        printsf(0,"[VOFA] SPEED=%.4f\r\n", speed_set);         return 1; }
+    if (test_key_equal(key, "TIME")) { speed_set=0.64f*time_control(value);                                        printsf(0,"[VOFA] SPEED=%.4f\r\n", speed_set);         return 1; }
 // RSTC command removed — circle counting not needed
     if (test_key_equal(key, "CAL"))
     {
