@@ -530,11 +530,11 @@ void tracking_control_loop()// 循迹控制主循环（状态机）
             {
                 Servo_SetAngle(steer_angle);
                 set_target_speed_by_steer_angle(steer_angle);
-                check_stop_line();
-                if (task_number == 2 || task_number == 3) {
-                    drive_state = STATE_STOP;
-                    printsf(0, "STOP!");
-                }
+                // check_stop_line();
+                // if (task_number == 2 || task_number == 3) {
+                //     drive_state = STATE_STOP;
+                //     printsf(0, "STOP!");
+                // }
             }
 
         }
