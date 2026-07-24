@@ -81,3 +81,4 @@ Listings/
 
 # MDK user config (不想提交的个人配置)
 *.Administrator
+Car_master/SeekFree_MSPM0G3507_Opensource_Library/project/mdk/JLinkLog.txt
