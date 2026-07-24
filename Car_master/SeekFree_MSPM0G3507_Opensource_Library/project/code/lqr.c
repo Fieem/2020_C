@@ -13,6 +13,10 @@ int16 time_control(float time)
 {
     if (time <= 0.01f) return 0;                    // 防除零
     speed_set = total_pulses / ((time-6) * 200.0f); // 200 = 1s / 5ms
+    // 坡度 > 20° 时补偿 1.1 倍速度，抵消上坡阻力
+    if (fabsf(Roll_a) > 20.0f) {
+        speed_set *= 1.1f;
+    }
     return (int16)speed_set;
 }
 
